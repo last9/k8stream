@@ -1,0 +1,670 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "action": "Binding",
+            "apiVersion": "v1",
+            "eventTime": "2020-02-20T08:39:03.935951Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-9896v",
+                "namespace": "default",
+                "resourceVersion": "535840",
+                "uid": "814a4994-e977-4e07-be69-6a464b2169c9"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "Successfully assigned default/pyserve-6fdd877d5b-9896v to minikube",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:03Z",
+                "name": "pyserve-6fdd877d5b-9896v.15f50f8d5e357993",
+                "namespace": "default",
+                "resourceVersion": "535846",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-9896v.15f50f8d5e357993",
+                "uid": "19b4506f-95f4-4dd0-8d2d-bf7647997877"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "default-scheduler-minikube",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-9896v",
+                "namespace": "default",
+                "resourceVersion": "535843",
+                "uid": "814a4994-e977-4e07-be69-6a464b2169c9"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:04Z",
+            "message": "Container image \"python:3.7.5-alpine\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:04Z",
+                "name": "pyserve-6fdd877d5b-9896v.15f50f8d837f47de",
+                "namespace": "default",
+                "resourceVersion": "535851",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-9896v.15f50f8d837f47de",
+                "uid": "dfbf1d70-1491-4916-9a13-f075fe7ba9be"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-9896v",
+                "namespace": "default",
+                "resourceVersion": "535843",
+                "uid": "814a4994-e977-4e07-be69-6a464b2169c9"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:04Z",
+            "message": "Created container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:04Z",
+                "name": "pyserve-6fdd877d5b-9896v.15f50f8d8769c0f3",
+                "namespace": "default",
+                "resourceVersion": "535853",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-9896v.15f50f8d8769c0f3",
+                "uid": "2c6513fc-d504-494f-93b1-f1d61145672b"
+            },
+            "reason": "Created",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-9896v",
+                "namespace": "default",
+                "resourceVersion": "535843",
+                "uid": "814a4994-e977-4e07-be69-6a464b2169c9"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:04Z",
+            "message": "Started container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:04Z",
+                "name": "pyserve-6fdd877d5b-9896v.15f50f8d91a1ab45",
+                "namespace": "default",
+                "resourceVersion": "535854",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-9896v.15f50f8d91a1ab45",
+                "uid": "7d2ce824-9f52-4bf7-b0f4-2b3b49cf98c2"
+            },
+            "reason": "Started",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "action": "Binding",
+            "apiVersion": "v1",
+            "eventTime": "2020-02-20T08:39:05.082338Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-bv4vm",
+                "namespace": "default",
+                "resourceVersion": "535858",
+                "uid": "4c48e0fe-fca8-46d8-bb08-bb407cb02e26"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "Successfully assigned default/pyserve-6fdd877d5b-bv4vm to minikube",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:05Z",
+                "name": "pyserve-6fdd877d5b-bv4vm.15f50f8da289f203",
+                "namespace": "default",
+                "resourceVersion": "535865",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-bv4vm.15f50f8da289f203",
+                "uid": "2e05eed4-095a-471c-94ea-c916709a260f"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "default-scheduler-minikube",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:05Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-bv4vm",
+                "namespace": "default",
+                "resourceVersion": "535863",
+                "uid": "4c48e0fe-fca8-46d8-bb08-bb407cb02e26"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:05Z",
+            "message": "Container image \"python:3.7.5-alpine\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:05Z",
+                "name": "pyserve-6fdd877d5b-bv4vm.15f50f8dd1edaf64",
+                "namespace": "default",
+                "resourceVersion": "535872",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-bv4vm.15f50f8dd1edaf64",
+                "uid": "f2de7a2f-888c-4f05-9255-df29185ad3e2"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:05Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-bv4vm",
+                "namespace": "default",
+                "resourceVersion": "535863",
+                "uid": "4c48e0fe-fca8-46d8-bb08-bb407cb02e26"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:05Z",
+            "message": "Created container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:05Z",
+                "name": "pyserve-6fdd877d5b-bv4vm.15f50f8dd4cbe3ec",
+                "namespace": "default",
+                "resourceVersion": "535873",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-bv4vm.15f50f8dd4cbe3ec",
+                "uid": "04c0e722-ad5e-4c1b-ab27-a3f76241208d"
+            },
+            "reason": "Created",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:06Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-bv4vm",
+                "namespace": "default",
+                "resourceVersion": "535863",
+                "uid": "4c48e0fe-fca8-46d8-bb08-bb407cb02e26"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:06Z",
+            "message": "Started container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:06Z",
+                "name": "pyserve-6fdd877d5b-bv4vm.15f50f8ddcf435e6",
+                "namespace": "default",
+                "resourceVersion": "535874",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-bv4vm.15f50f8ddcf435e6",
+                "uid": "2b0d0d81-ef8a-44f5-849d-edecf585208c"
+            },
+            "reason": "Started",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "action": "Binding",
+            "apiVersion": "v1",
+            "eventTime": "2020-02-20T08:35:25.049860Z",
+            "firstTimestamp": null,
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-ttj5w",
+                "namespace": "default",
+                "resourceVersion": "535546",
+                "uid": "091a0982-53fa-444c-beb6-cfd8ccbad9ec"
+            },
+            "kind": "Event",
+            "lastTimestamp": null,
+            "message": "Successfully assigned default/pyserve-6fdd877d5b-ttj5w to minikube",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:25Z",
+                "name": "pyserve-6fdd877d5b-ttj5w.15f50f5a6794f3b4",
+                "namespace": "default",
+                "resourceVersion": "535550",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-ttj5w.15f50f5a6794f3b4",
+                "uid": "0afabe55-04fc-43b9-a0fe-20dc4b81acda"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "default-scheduler-minikube",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:35:25Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-ttj5w",
+                "namespace": "default",
+                "resourceVersion": "535549",
+                "uid": "091a0982-53fa-444c-beb6-cfd8ccbad9ec"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:35:25Z",
+            "message": "Container image \"python:3.7.5-alpine\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:25Z",
+                "name": "pyserve-6fdd877d5b-ttj5w.15f50f5a94b42a11",
+                "namespace": "default",
+                "resourceVersion": "535557",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-ttj5w.15f50f5a94b42a11",
+                "uid": "3cf3f1a9-e45d-4172-adc0-d1f761767e2b"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:35:25Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-ttj5w",
+                "namespace": "default",
+                "resourceVersion": "535549",
+                "uid": "091a0982-53fa-444c-beb6-cfd8ccbad9ec"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:35:25Z",
+            "message": "Created container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:25Z",
+                "name": "pyserve-6fdd877d5b-ttj5w.15f50f5a990c0ed7",
+                "namespace": "default",
+                "resourceVersion": "535558",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-ttj5w.15f50f5a990c0ed7",
+                "uid": "423cf5ea-fb4c-400e-9a85-bf801f73d609"
+            },
+            "reason": "Created",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:35:26Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-ttj5w",
+                "namespace": "default",
+                "resourceVersion": "535549",
+                "uid": "091a0982-53fa-444c-beb6-cfd8ccbad9ec"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:35:26Z",
+            "message": "Started container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:26Z",
+                "name": "pyserve-6fdd877d5b-ttj5w.15f50f5aa30761ad",
+                "namespace": "default",
+                "resourceVersion": "535559",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-ttj5w.15f50f5aa30761ad",
+                "uid": "c78c849a-d157-4002-b038-ae17c76113f8"
+            },
+            "reason": "Started",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:02Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{pyserve}",
+                "kind": "Pod",
+                "name": "pyserve-6fdd877d5b-ttj5w",
+                "namespace": "default",
+                "resourceVersion": "535549",
+                "uid": "091a0982-53fa-444c-beb6-cfd8ccbad9ec"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:02Z",
+            "message": "Stopping container pyserve",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:02Z",
+                "name": "pyserve-6fdd877d5b-ttj5w.15f50f8d25a6fcf4",
+                "namespace": "default",
+                "resourceVersion": "535833",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b-ttj5w.15f50f8d25a6fcf4",
+                "uid": "44984305-7b7c-453e-853e-74dd05e8504a"
+            },
+            "reason": "Killing",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "kubelet",
+                "host": "minikube"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:35:25Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "ReplicaSet",
+                "name": "pyserve-6fdd877d5b",
+                "namespace": "default",
+                "resourceVersion": "535544",
+                "uid": "901b90bb-85d4-4012-af8f-8e529a02af3e"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:35:25Z",
+            "message": "Created pod: pyserve-6fdd877d5b-ttj5w",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:25Z",
+                "name": "pyserve-6fdd877d5b.15f50f5a66bff7be",
+                "namespace": "default",
+                "resourceVersion": "535551",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b.15f50f5a66bff7be",
+                "uid": "31647f7d-b313-4ff0-9a3a-de00f28a0898"
+            },
+            "reason": "SuccessfulCreate",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "replicaset-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:02Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "ReplicaSet",
+                "name": "pyserve-6fdd877d5b",
+                "namespace": "default",
+                "resourceVersion": "535828",
+                "uid": "901b90bb-85d4-4012-af8f-8e529a02af3e"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:02Z",
+            "message": "Deleted pod: pyserve-6fdd877d5b-ttj5w",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:02Z",
+                "name": "pyserve-6fdd877d5b.15f50f8d260e8cbf",
+                "namespace": "default",
+                "resourceVersion": "535834",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b.15f50f8d260e8cbf",
+                "uid": "43d8846b-2bb2-4a2c-89a7-33f5ed637de8"
+            },
+            "reason": "SuccessfulDelete",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "replicaset-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:03Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "ReplicaSet",
+                "name": "pyserve-6fdd877d5b",
+                "namespace": "default",
+                "resourceVersion": "535838",
+                "uid": "901b90bb-85d4-4012-af8f-8e529a02af3e"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:03Z",
+            "message": "Created pod: pyserve-6fdd877d5b-9896v",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:03Z",
+                "name": "pyserve-6fdd877d5b.15f50f8d5d091e99",
+                "namespace": "default",
+                "resourceVersion": "535845",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b.15f50f8d5d091e99",
+                "uid": "4d1bde68-bf74-4bf4-a322-a38c6a85c60d"
+            },
+            "reason": "SuccessfulCreate",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "replicaset-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-20T08:39:05Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "ReplicaSet",
+                "name": "pyserve-6fdd877d5b",
+                "namespace": "default",
+                "resourceVersion": "535856",
+                "uid": "901b90bb-85d4-4012-af8f-8e529a02af3e"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:05Z",
+            "message": "Created pod: pyserve-6fdd877d5b-bv4vm",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:05Z",
+                "name": "pyserve-6fdd877d5b.15f50f8d9fc940e3",
+                "namespace": "default",
+                "resourceVersion": "535862",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve-6fdd877d5b.15f50f8d9fc940e3",
+                "uid": "d172dec0-2978-432c-a988-af2f582ac35c"
+            },
+            "reason": "SuccessfulCreate",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "replicaset-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 28,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-14T04:24:27Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "Deployment",
+                "name": "pyserve",
+                "namespace": "default",
+                "resourceVersion": "535827",
+                "uid": "bf85eab5-1268-4613-b081-d827340dba5d"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:02Z",
+            "message": "Scaled down replica set pyserve-6fdd877d5b to 1",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:02Z",
+                "name": "pyserve.15f32a2d1db5efd3",
+                "namespace": "default",
+                "resourceVersion": "535831",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve.15f32a2d1db5efd3",
+                "uid": "9f25d736-3c23-42f6-8b5b-424c5fec9c5c"
+            },
+            "reason": "ScalingReplicaSet",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "deployment-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 26,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-14T08:54:54Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "Deployment",
+                "name": "pyserve",
+                "namespace": "default",
+                "resourceVersion": "535543",
+                "uid": "bf85eab5-1268-4613-b081-d827340dba5d"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:03Z",
+            "message": "Scaled up replica set pyserve-6fdd877d5b to 2",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:35:25Z",
+                "name": "pyserve.15f338ef4ea76572",
+                "namespace": "default",
+                "resourceVersion": "535841",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve.15f338ef4ea76572",
+                "uid": "b5ea5c74-30c7-4ee6-a080-26ec54d38872"
+            },
+            "reason": "ScalingReplicaSet",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "deployment-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 5,
+            "eventTime": null,
+            "firstTimestamp": "2020-02-17T08:59:35Z",
+            "involvedObject": {
+                "apiVersion": "apps/v1",
+                "kind": "Deployment",
+                "name": "pyserve",
+                "namespace": "default",
+                "resourceVersion": "535855",
+                "uid": "bf85eab5-1268-4613-b081-d827340dba5d"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2020-02-20T08:39:05Z",
+            "message": "Scaled up replica set pyserve-6fdd877d5b to 3",
+            "metadata": {
+                "creationTimestamp": "2020-02-20T08:39:05Z",
+                "name": "pyserve.15f424ee58435720",
+                "namespace": "default",
+                "resourceVersion": "535860",
+                "selfLink": "/api/v1/namespaces/default/events/pyserve.15f424ee58435720",
+                "uid": "1078e6dd-6a0a-4c0f-8960-5a1a700a075f"
+            },
+            "reason": "ScalingReplicaSet",
+            "reportingComponent": "",
+            "reportingInstance": "",
+            "source": {
+                "component": "deployment-controller"
+            },
+            "type": "Normal"
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package main;
+
+message L9Event {
+    string ID = 1;
+    int64 Timestamp = 2;
+    string Component = 3;
+    string Host= 4;
+    string Message = 5;
+    string Namespace = 6;
+    string Reason = 7;
+    string ReferenceUID = 8;
+    string ReferenceNamespace = 9;
+    string ReferenceName = 10;
+    string ReferenceKind = 11;
+    string ReferenceVersion = 12;
+    string ObjectUid = 13;
+    map<string, string> Labels = 14;
+    map<string, string> Annotations = 15;
+    repeated string Address = 16;
+}
+
+message L9EventBatch {
+  repeated L9Event events = 1;
+}
+
+message EventError {
+  int32 index = 1;
+  string reason = 2;
+}
+
+message Response {
+  bool Ok = 1;
+  string Batch = 2;
+  repeated EventError errors = 3;
+}
