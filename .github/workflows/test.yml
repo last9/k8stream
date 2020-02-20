@@ -21,6 +21,9 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
+    - name: Fetch proto compiler
+      run: go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+
     - name: Build
       run: make build
 
