@@ -20,20 +20,22 @@ func TestMakeL9Event(t *testing.T) {
 	var wg sync.WaitGroup
 	e := &events{}
 	ch := make(chan *L9Event)
-	mCache, _ := cacheClient()
-	key := "814a4994-e977-4e07-be69-6a464b2169c9"
+	mCache, err := cacheClient()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("Set and Cache", func(t *testing.T) {
-		mCache.Set(key, &unstructured.Unstructured{}, 1)
-	})
+	key := "814a4994-e977-4e07-be69-6a464b2169c9"
 
 	t.Run("Wait till you get the key", func(t *testing.T) {
 		var ok bool
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 10; i++ {
+			mCache.Set(key, &unstructured.Unstructured{}, 1)
 			if _, ok = mCache.Get(key); ok {
+				t.Log(i)
 				break
 			}
-			time.Sleep(1)
+			time.Sleep(10 * time.Millisecond)
 		}
 
 		assert.Equal(t, true, ok)
