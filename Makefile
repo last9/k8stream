@@ -25,5 +25,5 @@ docker_login:
 upload: docker_login
 	docker tag last9:latest $(REPO):$(TAG)
 	docker tag last9:latest $(REPO):latest
-	docker push last9:latest $(REPO):$(TAG)
+	docker push $(REPO):$(TAG)
 	docker push $(REPO):latest
