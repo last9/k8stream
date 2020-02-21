@@ -7,4 +7,4 @@ build: proto
 	go build -race .
 
 test: proto
-	go test -v ./... -cover
+	go test -v ./...
