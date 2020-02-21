@@ -19,7 +19,7 @@ func loadEnvConfig(key string, cfg interface{}) error {
 }
 
 type L9K8streamConfig struct {
-	KubeConfig    string `json:"kubeconfig" validate:"required"`
+	KubeConfig    string `json:"kubeconfig"`
 	UID           string `json:"uid" validate:"required"`
 	BatchSize     int    `json:"batch_size"`
 	BatchInterval int    `json:"batch_interval"`
