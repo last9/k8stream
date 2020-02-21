@@ -14,7 +14,7 @@ build_binary: proto
     		cgo github.com/last9/k8stream/
 
 build: build_binary
-	docker build -t last9:latest .
+	docker build -t $(REPO):latest .
 
 test: proto
 	go test -v ./...
@@ -23,7 +23,6 @@ docker_login:
 	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
 
 upload: docker_login
-	docker tag last9:latest $(REPO):$(TAG)
-	docker tag last9:latest $(REPO):latest
+	docker tag $(REPO):latest $(REPO):$(TAG)
 	docker push $(REPO):$(TAG)
 	docker push $(REPO):latest
