@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - "1.13"
+
+services:
+  - docker
+
+script:
+  - make build
+  - make test
+
+deploy:
+  - provider: script
+    script: make upload
+    on:
+      branch: master

@@ -1,3 +1,9 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
 .idea/
 .DS_Store
 # Binaries for programs and plugins
@@ -16,11 +22,6 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 *.pb.go
-# Ignore all
-*
-
-# Unignore all with extensions
-!*.*
 
 # Unignore Makefile
 !Makefile
@@ -40,6 +41,7 @@ _vendor*
 *.pyc
 test.json
 *.gz
+*.pb.go
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
