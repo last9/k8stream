@@ -14,4 +14,4 @@ deploy:
   - provider: script
     script: make upload
     on:
-      branch: no-pb-go
+      branch: master
