@@ -1,6 +1,6 @@
 OS_NAME := $(shell uname -s | tr A-Z a-z)
 TAG := $(shell git rev-parse --short $(TRAVIS_COMMIT))
-REPO := docker.pkg.github.com/last9/last9/last9
+REPO := last9inc/k8stream
 
 proto-linux:
 	which protoc || ((which unzip || apt install unzip) && curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.9.2/protoc-3.9.2-linux-x86_64.zip -o /tmp/protoc.zip && mkdir -p /tmp/protoc && unzip -o /tmp/protoc.zip -d /tmp/protoc && cp /tmp/protoc/bin/protoc $(GOPATH)/bin/protoc && rm -rf /tmp/protoc.zip)
@@ -20,7 +20,7 @@ test: proto
 	go test -v ./...
 
 docker_login:
-	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin docker.pkg.github.com
+	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
 
 upload: docker_login
 	docker tag last9:latest $(REPO):$(TAG)
