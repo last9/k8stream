@@ -1,5 +1,5 @@
 # k8stream
-Processing kubenetes events stream.
+Processing kubernates events stream.
 
 - It doesn't do an event-by-event upload.
 - Uses asynchronous batching to write to Sink (only S3, File outout are supported for now)
