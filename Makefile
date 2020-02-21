@@ -10,7 +10,7 @@ proto: proto-$(OS_NAME)
 	protoc --go_out=plugins=grpc:. *.proto
 
 build_binary: proto
-	env GOOS=linux GARCH=amd64 CGO_ENABLED=0 GOCACHE=/tmp/gocache go build -o k8stream -a -installsuffix \
+	env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o k8stream -installsuffix \
     		cgo github.com/last9/k8stream/
 
 build: build_binary
