@@ -13,7 +13,7 @@ build_binary: proto
 	env GOOS=linux GARCH=amd64 CGO_ENABLED=0 GOCACHE=/tmp/gocache go build -o k8stream -a -installsuffix \
     		cgo github.com/last9/k8stream/
 
-build: #build_binary
+build: build_binary
 	docker build -t last9:latest .
 
 test: proto
