@@ -12,15 +12,12 @@ Processing kubenetes events stream.
 - Resync allows to catch up with the Event stream if its lost momentiarilly.
 
 
-Note:
-Because events from K8s can arrive out of order. We try our best to de-deuplicate and order them. But it cannot be guaranteed.
-It's best to handle deduplication and ordering at consumer end.
+*Because events from K8s can arrive out of order, though we try our best to de-deuplicate and order them, it cannot be guaranteed. It's advised to handle deduplication and ordering at consumer end*
 
 ## Build
 
-1. Fetch proto compiler `go get github.com/golang/protobuf/{proto,protoc-gen-go}`
-2. Build the code `make build`
-
+Follow the Makefile `make build`
+It should output a ./k8stream binary in the TLD of the repository.
 
 ## Run
 
@@ -41,5 +38,7 @@ It's best to handle deduplication and ordering at consumer end.
     "sink": "file", # Should use S3 of File Sink
     "kubeconfig": "./kubeconfig" # Location to kubeconfig file
 }
-
 ```
+
+## Deploy
+TODO
