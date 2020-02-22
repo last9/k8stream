@@ -59,8 +59,12 @@ func main() {
 	informer.AddEventHandler(h)
 	go informer.Run(stopCh)
 
+	if err := StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval); err != nil {
+		log.Fatal(err)
+	}
+
 	if !cache.WaitForCacheSync(stopCh, informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
+		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
 
