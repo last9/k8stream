@@ -19,11 +19,13 @@ func loadEnvConfig(key string, cfg interface{}) error {
 }
 
 type L9K8streamConfig struct {
-	KubeConfig    string `json:"kubeconfig"`
-	UID           string `json:"uid" validate:"required"`
-	BatchSize     int    `json:"batch_size"`
-	BatchInterval int    `json:"batch_interval"`
-	Sink          string `json:"sink" validate:"required"`
+	KubeConfig        string `json:"kubeconfig"`
+	UID               string `json:"uid" validate:"required"`
+	BatchSize         int    `json:"batch_size"`
+	BatchInterval     int    `json:"batch_interval"`
+	Sink              string `json:"sink" validate:"required"`
+	HeartbeatHook     string `json:"heartbeat_hook"`
+	HeartbeatInterval int    `json:"heartbeat_interval"`
 }
 
 var validate *validator.Validate

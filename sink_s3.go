@@ -17,7 +17,7 @@ import (
 
 type S3Sink struct {
 	Prefix  string `json:"prefix" validate:"required"`
-	Region  string `json:"aws_region", validate:"required"`
+	Region  string `json:"aws_region" validate:"required"`
 	Bucket  string `json:"aws_bucket" validate:"required"`
 	Profile string `json:"aws_profile" validate:"required"`
 }
