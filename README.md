@@ -1,13 +1,13 @@
 # k8stream
-Processing kubernates events stream.
+Process & Send kubernetes events to a Sink, in batches.
 
-- It doesn't do an event-by-event upload.
+- Doesn't perform an event-by-event upload.
 - Uses asynchronous batching to write to Sink (only S3, File outout are supported for now)
 - Events are marshalled using protobuf.
 - Data written to Sink is gzipped.
 - Handles de-duplication to some degreee. Not applicable after a restart.
 - Enriches Event with Object and Host details and Caches them.
-- Uses a highly concurrent Cache.
+- Uses a highly concurrent Cache to avoid re-lookup.
 - Avoids any local/intermediate files.
 - Resync allows to catch up with the Event stream if its lost momentiarilly.
 
@@ -36,9 +36,11 @@ It should output a ./k8stream binary in the TLD of the repository.
     "aws_bucket": "last9-trials", # S3 Bucket to Upload to
     "aws_profile": "last9data", # AWS Profile reads from ~/.aws/credentials
     "sink": "file", # Should use S3 of File Sink
-    "kubeconfig": "./kubeconfig" # Location to kubeconfig file
+    "kubeconfig": "./kubeconfig" # Location to kubeconfig file, leave empty when deploying to K8s
 }
 ```
 
 ## Deploy
-TODO
+
+To deploy refer to the sample-config file at https://github.com/last9/k8stream/blob/master/deploy/k8stream.yaml
+In case on in-cluster deployment omit the "kubeconfig" parameter in JSON. Setting this as empty the code falls back to in-cluster authorization.
