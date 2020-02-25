@@ -1,4 +1,4 @@
-# k8stream
+# k8stream [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 Process & Send kubernetes events to a Sink, in batches.
 
 - Doesn't perform an event-by-event upload.
