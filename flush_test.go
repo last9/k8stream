@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/gogo/protobuf/proto"
+	proto "github.com/golang/protobuf/proto"
 	"gopkg.in/go-playground/assert.v1"
 )
 
