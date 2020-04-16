@@ -10,18 +10,30 @@ import (
 )
 
 const defaultHeartbeatInterval = 30
+const defaultHeartbeatTimeout = 300 // milliseconds
 
-func StartHeartbeat(uid, hook string, interval int) error {
+func StartHeartbeat(uid, version, hook string, interval, timeout int) <-chan error {
+	errCh := make(chan error)
+
 	if hook == "" {
-		return nil
+		errCh <- fmt.Errorf("empty heartbeat hook")
 	}
+
 	u, err := url.Parse(hook)
 	if err != nil {
-		return fmt.Errorf("invalid hearbeat hook: %w", err)
+		errCh <- fmt.Errorf("invalid hearbeat hook: %w", err)
 	}
+	q := u.Query()
+	q.Set("uid", uid)
+	q.Set("version", version)
+	u.RawQuery = q.Encode()
 
 	if interval == 0 {
 		interval = defaultHeartbeatInterval
+	}
+
+	if timeout == 0 {
+		timeout = defaultHeartbeatTimeout
 	}
 
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
@@ -29,26 +41,26 @@ func StartHeartbeat(uid, hook string, interval int) error {
 	go func() {
 		for {
 			<-ticker.C
-			q := u.Query()
-			q.Set("uid", uid)
-			u.RawQuery = q.Encode()
+			client := http.Client{Timeout: time.Duration(timeout) * time.Millisecond}
 
-			resp, err := http.Get(u.String())
+			resp, err := client.Get(u.String())
 			if err != nil {
 				log.Print("error while sending heartbeat: %w", err)
 			}
 
-			func() {
-				defer resp.Body.Close()
+			defer resp.Body.Close()
 
-				if resp.StatusCode != http.StatusOK {
-					respBody, _ := ioutil.ReadAll(resp.Body)
+			if resp.StatusCode != http.StatusOK {
+				respBody, _ := ioutil.ReadAll(resp.Body)
+				log.Printf("error while sending heartbeat: %d %s", resp.StatusCode, string(respBody))
 
-					log.Printf("error while sending heartbeat: %d %s", resp.StatusCode, string(respBody))
+				if resp.StatusCode == http.StatusUpgradeRequired {
+					log.Println("upgrade required for k8stream.")
+					errCh <- fmt.Errorf("upgrade required for k8stream")
 				}
-			}()
+			}
 		}
 	}()
 
-	return nil
+	return errCh
 }

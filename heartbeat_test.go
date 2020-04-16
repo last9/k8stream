@@ -12,8 +12,13 @@ import (
 
 func TestStartHeartbeat(t *testing.T) {
 	uids := make(chan string, 2)
+	upgradeUid := "test"
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		uid := r.URL.Query().Get("uid")
+		if uid == upgradeUid {
+			w.WriteHeader(http.StatusUpgradeRequired)
+			return
+		}
 		if uid != "" {
 			uids <- uid
 		}
@@ -21,16 +26,30 @@ func TestStartHeartbeat(t *testing.T) {
 		w.Write([]byte("Ok"))
 	}))
 
-	uid := string(uuid.NewUUID())
-	interval := 1
+	t.Run("Receive heartbeat", func(t *testing.T) {
+		uid := string(uuid.NewUUID())
+		interval := 1
 
-	assert.Nil(t, StartHeartbeat(uid, s.URL, interval))
+		errCh := StartHeartbeat(uid, "1", s.URL, interval, 0)
 
-	select {
-	case received := <-uids:
-		assert.Equal(t, uid, received)
-		return
-	case <-time.After(time.Duration(interval+3) * time.Second):
-		t.Error("no heartbeat in expected interval")
-	}
+		select {
+		case err := <-errCh:
+			t.Errorf("failed to send heartbeat, error occured %w", err)
+		case received := <-uids:
+			assert.Equal(t, uid, received)
+			return
+		case <-time.After(time.Duration(interval+3) * time.Second):
+			t.Error("no heartbeat in expected interval")
+		}
+	})
+
+	t.Run("Error out on 426 upgrade required", func(t *testing.T) {
+		expectedMsg := "upgrade required for k8stream"
+		errCh := StartHeartbeat(upgradeUid, "1", s.URL, 1, 0)
+
+		select {
+		case errMsg := <-errCh:
+			assert.Contains(t, errMsg.Error(), expectedMsg)
+		}
+	})
 }

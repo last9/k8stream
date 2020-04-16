@@ -26,6 +26,8 @@ type L9K8streamConfig struct {
 	Sink              string `json:"sink" validate:"required"`
 	HeartbeatHook     string `json:"heartbeat_hook"`
 	HeartbeatInterval int    `json:"heartbeat_interval"`
+	HeartbeatTimeout  int    `json:"heartbeat_timeout"`
+	Version           string `json:"version" validate:"required"`
 }
 
 var validate *validator.Validate
