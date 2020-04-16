@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 
@@ -30,11 +31,13 @@ func TestStartHeartbeat(t *testing.T) {
 		uid := string(uuid.NewUUID())
 		interval := 1
 
-		errCh := StartHeartbeat(uid, "1", s.URL, interval, 0)
+		if err := StartHeartbeat(uid, s.URL, interval, 0,
+			nil, nil, nil,
+			func(c chan struct{}, c2 chan struct{}, group *sync.WaitGroup) {}); err != nil {
+			t.Errorf("failed to send heartbeat, error occured %s", err.Error())
+		}
 
 		select {
-		case err := <-errCh:
-			t.Errorf("failed to send heartbeat, error occured %w", err)
 		case received := <-uids:
 			assert.Equal(t, uid, received)
 			return
@@ -44,12 +47,14 @@ func TestStartHeartbeat(t *testing.T) {
 	})
 
 	t.Run("Error out on 426 upgrade required", func(t *testing.T) {
-		expectedMsg := "upgrade required for k8stream"
-		errCh := StartHeartbeat(upgradeUid, "1", s.URL, 1, 0)
+		ch := make(chan struct{})
+		err := StartHeartbeat(upgradeUid, s.URL, 1, 0, ch, nil, nil,
+			func(c chan struct{}, c2 chan struct{}, group *sync.WaitGroup) {
+				ch <- struct{}{}
+			})
 
-		select {
-		case errMsg := <-errCh:
-			assert.Contains(t, errMsg.Error(), expectedMsg)
-		}
+		assert.Nil(t, err)
+		data := <-ch
+		assert.NotNil(t, data)
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -15,7 +16,10 @@ import (
 
 var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
+	wg         = &sync.WaitGroup{}
 )
+
+const VERSION = "0.0.1"
 
 func main() {
 	kingpin.Parse()
@@ -49,9 +53,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ch := NewBatch(
-		conf.UID, conf.BatchSize, conf.BatchInterval, sink, mcache,
-	)
+	flusherStopCh := make(chan struct{})
+	ch := NewBatch(conf.UID, conf.BatchSize, conf.BatchInterval, sink, mcache, flusherStopCh, wg)
 
 	h := &Handler{kc, ch, mcache}
 
@@ -59,7 +62,26 @@ func main() {
 	informer.AddEventHandler(h)
 	go informer.Run(stopCh)
 
-	errCh := StartHeartbeat(conf.UID, conf.Version, conf.HeartbeatHook, conf.HeartbeatInterval, conf.HeartbeatTimeout)
+	// TODO: currently, we are passing 2 channels and wg just for graceful shutdown. this needs to be changed.
+	// TODO: the heartbeat function should not be concerned with the chan and wg values
+	if err := StartHeartbeat(
+		conf.UID,
+		conf.HeartbeatHook,
+		conf.HeartbeatInterval,
+		conf.HeartbeatTimeout,
+		stopCh,
+		flusherStopCh,
+		wg,
+		func(stopCh chan struct{}, flusherStopCh chan struct{}, wg *sync.WaitGroup) {
+			fmt.Errorf("upgrade required for k8stream version %s, halting event pull", VERSION)
+			close(stopCh) // stop receiving k8s events
+			wg.Add(1)
+			close(flusherStopCh) // waits till currents events are flushed to sink, then stops consuming.
+			wg.Wait()
+			os.Exit(1)
+		}); err != nil {
+		log.Fatal(err)
+	}
 
 	if !cache.WaitForCacheSync(stopCh, informer.HasSynced) {
 		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
@@ -69,10 +91,6 @@ func main() {
 	sigCh := make(chan os.Signal, 0)
 	signal.Notify(sigCh, os.Kill, os.Interrupt)
 
-	select {
-	case <-errCh:
-		close(stopCh)
-	case <-sigCh:
-		close(stopCh)
-	}
+	<-sigCh
+	close(stopCh)
 }

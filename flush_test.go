@@ -43,7 +43,7 @@ func TestBatch(t *testing.T) {
 			},
 		}
 
-		ch := NewBatch(uuid, 5, 2, f, nil)
+		ch := NewBatch(uuid, 5, 2, f, nil, nil, nil)
 		assert.Equal(t, 5, cap(ch))
 
 		// Expected 3 batches.
@@ -72,8 +72,28 @@ func TestBatch(t *testing.T) {
 				}
 			})
 
-		})
+			t.Run("Flush current events on shutdown hook", func(t *testing.T) {
+				exitCh := make(chan struct{})
+				f := &MemFlush{
+					records: map[string][]byte{},
+					onFetch: func(ident string) {},
+				}
 
+				ch := NewBatch(uuid, 5, 2, f, nil, exitCh, &wg)
+
+				// push 10 messages on channel
+				for i := 0; i < 10; i++ {
+					ch <- &L9Event{ID: string(i)}
+				}
+				// close channel to invoke shutdown scenario
+				wg.Add(1)
+				close(exitCh)
+				wg.Wait()
+
+				assert.Equal(t, 2, len(f.records))
+				assert.Equal(t, uuid, f.uuid)
+			})
+		})
 	})
 }
 

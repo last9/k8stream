@@ -10,6 +10,5 @@
     "aws_access_key": "1",
     "aws_secret_access_key": "2",
     "sink": "file",
-    "version": "1.0.0",
     "kubeconfig": "./kubeconfig"
 }

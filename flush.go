@@ -32,7 +32,7 @@ func getFlusher(conf *L9K8streamConfig, b json.RawMessage) (Flusher, error) {
 }
 
 func flushEvents(q <-chan *L9Event, interval int) (
-	ne *L9EventBatch, ident string,
+	ne *L9EventBatch, ident string, isEmpty bool,
 ) {
 	var ix int
 	defer func() {
@@ -46,7 +46,7 @@ func flushEvents(q <-chan *L9Event, interval int) (
 	for ; ix < size; ix++ {
 		select {
 		case <-time.After(time.Duration(interval) * time.Second):
-			return
+			return ne, ident, true
 		case x := <-q:
 			ne.Events[ix] = x
 		}
@@ -58,8 +58,8 @@ func flushEvents(q <-chan *L9Event, interval int) (
 func flush(
 	q <-chan *L9Event, interval int, uid string, cache *ristretto.Cache,
 	sink Flusher,
-) {
-	ne, ident := flushEvents(q, interval)
+) (isEmpty bool) {
+	ne, ident, isEmpty := flushEvents(q, interval)
 	if len(ne.Events) == 0 {
 		return
 	}
@@ -79,4 +79,6 @@ func flush(
 	for _, e := range ne.Events {
 		cache.Set(e.ID, true, 0)
 	}
+
+	return
 }
