@@ -49,8 +49,8 @@ func TestStartHeartbeat(t *testing.T) {
 	t.Run("Error out on 426 upgrade required", func(t *testing.T) {
 		ch := make(chan struct{})
 		err := StartHeartbeat(upgradeUid, s.URL, 1, 0, ch, nil, nil,
-			func(c chan struct{}, c2 chan struct{}, group *sync.WaitGroup) {
-				ch <- struct{}{}
+			func(c1 chan struct{}, c2 chan struct{}, group *sync.WaitGroup) {
+				c1 <- struct{}{}
 			})
 
 		assert.Nil(t, err)
