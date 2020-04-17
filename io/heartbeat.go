@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"fmt"
@@ -38,15 +38,13 @@ func StartHeartbeat(uid, hook string, interval int) error {
 				log.Print("error while sending heartbeat: %w", err)
 			}
 
-			func() {
-				defer resp.Body.Close()
+			defer resp.Body.Close()
 
-				if resp.StatusCode != http.StatusOK {
-					respBody, _ := ioutil.ReadAll(resp.Body)
+			if resp.StatusCode != http.StatusOK {
+				respBody, _ := ioutil.ReadAll(resp.Body)
 
-					log.Printf("error while sending heartbeat: %d %s", resp.StatusCode, string(respBody))
-				}
-			}()
+				log.Printf("error while sending heartbeat: %d %s", resp.StatusCode, string(respBody))
+			}
 		}
 	}()
 

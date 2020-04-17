@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
-	"k8s.io/apimachinery/pkg/util/uuid"
 )
 
 func TestStartHeartbeat(t *testing.T) {
@@ -21,7 +21,7 @@ func TestStartHeartbeat(t *testing.T) {
 		w.Write([]byte("Ok"))
 	}))
 
-	uid := string(uuid.NewUUID())
+	uid := uuid.NewV4().String()
 	interval := 1
 
 	assert.Nil(t, StartHeartbeat(uid, s.URL, interval))

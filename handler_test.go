@@ -19,7 +19,7 @@ type events struct {
 func TestMakeL9Event(t *testing.T) {
 	var wg sync.WaitGroup
 	e := &events{}
-	ch := make(chan *L9Event)
+	ch := make(chan interface{})
 	mCache, err := cacheClient()
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +62,8 @@ func TestMakeL9Event(t *testing.T) {
 	t.Run("Receive event over Handler", func(t *testing.T) {
 		go func() {
 			defer wg.Done()
-			x := <-ch
+			msg := <-ch
+			x := msg.(*L9Event)
 			assert.Equal(t, "Scheduled", x.Reason)
 		}()
 

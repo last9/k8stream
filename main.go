@@ -5,72 +5,94 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
+	"github.com/last9/k8stream/io"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
 )
 
+const VERSION = "0.0.1"
+
 var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
 )
 
 func main() {
+	kingpin.Version(VERSION)
 	kingpin.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	cData, err := readConfig(*configFile)
+	cData, err := io.ReadConfig(*configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	conf := &L9K8streamConfig{}
-	if err := loadConfig(cData, conf); err != nil {
+	if err := io.LoadConfig(cData, conf); err != nil {
 		log.Fatal(err)
 	}
 
+	if err := io.StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval); err != nil {
+		log.Fatal(err)
+	}
+
+	conf.Raw = cData
+	setDefaults(conf)
+
+	// Create a k8s client
 	kc, err := newK8sClient(conf.KubeConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	factory := informers.NewSharedInformerFactory(kc.Clientset, time.Duration(60)*time.Second)
-	informer := factory.Core().V1().Events().Informer()
-
+	// Create a LRU Cache
 	mcache, err := cacheClient()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sink, err := getFlusher(conf, cData)
+	// Get Flusher instance from IO
+	f, err := io.GetFlusher(&conf.Config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ch := NewBatch(
-		conf.UID, conf.BatchSize, conf.BatchInterval, sink, mcache,
-	)
-
+	// Start a batcher, returns a channel.
+	ch := startIngester(f, conf, mcache)
 	h := &Handler{kc, ch, mcache}
 
 	stopCh := make(chan struct{})
+	factory := informers.NewSharedInformerFactory(
+		kc.Clientset,
+		time.Duration(conf.ResyncInterval)*time.Second,
+	)
+
+	informer := factory.Core().V1().Events().Informer()
 	informer.AddEventHandler(h)
 	go informer.Run(stopCh)
-
-	if err := StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval); err != nil {
-		log.Fatal(err)
-	}
-
 	if !cache.WaitForCacheSync(stopCh, informer.HasSynced) {
 		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
 
-	sigCh := make(chan os.Signal, 0)
-	signal.Notify(sigCh, os.Kill, os.Interrupt)
+	os.Exit(trapSignal(stopCh))
+}
 
-	<-sigCh
+func trapSignal(stopCh chan<- struct{}) int {
+	sigCh := make(chan os.Signal, 0)
+	signal.Notify(sigCh, os.Kill, os.Interrupt, syscall.SIGQUIT)
+
+	s := <-sigCh
 	close(stopCh)
+
+	if s == syscall.SIGQUIT {
+		time.Sleep(300 * time.Millisecond)
+		return 1
+	}
+
+	return 0
 }

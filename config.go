@@ -1,53 +1,21 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-	"sync"
-
-	"github.com/kelseyhightower/envconfig"
-	"gopkg.in/go-playground/validator.v9"
+	"github.com/last9/k8stream/io"
 )
 
-func readConfig(f *os.File) (json.RawMessage, error) {
-	return ioutil.ReadAll(f)
-}
-
-func loadEnvConfig(key string, cfg interface{}) error {
-	return envconfig.Process(key, cfg)
-}
+const (
+	DEFAULT_RESYNC_INTERVAL = 120
+)
 
 type L9K8streamConfig struct {
-	KubeConfig        string `json:"kubeconfig"`
-	UID               string `json:"uid" validate:"required"`
-	BatchSize         int    `json:"batch_size"`
-	BatchInterval     int    `json:"batch_interval"`
-	Sink              string `json:"sink" validate:"required"`
-	HeartbeatHook     string `json:"heartbeat_hook"`
-	HeartbeatInterval int    `json:"heartbeat_interval"`
+	io.Config      `json:"config" validate:"required"`
+	KubeConfig     string `json:"kubeconfig"`
+	ResyncInterval int    `json:"resync_interval"`
 }
 
-var validate *validator.Validate
-var vOnce sync.Once
-
-func Validator() *validator.Validate {
-	vOnce.Do(func() {
-		validate = validator.New()
-	})
-
-	return validate
-}
-
-func loadConfig(b json.RawMessage, i interface{}) error {
-	v := Validator()
-	if err := json.Unmarshal(b, i); err != nil {
-		return err
+func setDefaults(c *L9K8streamConfig) {
+	if c.ResyncInterval == 0 {
+		c.ResyncInterval = DEFAULT_RESYNC_INTERVAL
 	}
-
-	if err := v.Struct(i); err != nil {
-		return err
-	}
-
-	return nil
 }
