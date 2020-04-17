@@ -1,5 +1,7 @@
 # K8stream [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/last9/k8stream.svg?branch=master)](https://travis-ci.com/last9/k8stream)
 
+![Logo|512x397, 50%](images/photo_2020-04-17_20-09-55.jpg)
+
 # Background
 
 Kubernetes events are an excellent source of information to monitor and debug the state of your cluster. Kubernetes API server emits events whenever there is a change in some resource it manages. These events are typically stored in etcd for some time and can be observed when you run kubectl get events or kubectl describe. 
