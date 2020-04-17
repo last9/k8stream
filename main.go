@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -17,7 +18,12 @@ var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
 )
 
+const (
+	VERSION = "0.0.1"
+)
+
 func main() {
+	kingpin.Version(VERSION)
 	kingpin.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
@@ -59,7 +65,7 @@ func main() {
 	informer.AddEventHandler(h)
 	go informer.Run(stopCh)
 
-	if err := StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval); err != nil {
+	if err := StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval, conf.HeartbeatTimeout); err != nil {
 		log.Fatal(err)
 	}
 
@@ -69,8 +75,13 @@ func main() {
 	}
 
 	sigCh := make(chan os.Signal, 0)
-	signal.Notify(sigCh, os.Kill, os.Interrupt)
+	signal.Notify(sigCh, os.Kill, os.Interrupt, syscall.SIGQUIT)
 
-	<-sigCh
+	i := <-sigCh
 	close(stopCh)
+
+	if i == syscall.SIGQUIT {
+		time.Sleep(300 * time.Millisecond)
+		os.Exit(1)
+	}
 }
