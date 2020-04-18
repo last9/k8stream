@@ -1,10 +1,10 @@
-package main
+package io
 
 import (
 	"os"
 	"testing"
 
-	"gopkg.in/go-playground/assert.v1"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig(t *testing.T) {
@@ -13,22 +13,24 @@ func TestConfig(t *testing.T) {
 		t.Fatal(f)
 	}
 
-	b, err := readConfig(f)
+	b, err := ReadConfig(f)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Run("Validate", func(t *testing.T) {
-		t.Run("L9K8streamConfig", func(t *testing.T) {
-			s := &L9K8streamConfig{}
-			if err := loadConfig(b, s); err != nil {
+		t.Run("Config", func(t *testing.T) {
+			s := &Config{}
+			if err := LoadConfig(b, s); err != nil {
 				t.Fatal(err)
 			}
+
+			assert.NotEmpty(t, s.Raw)
 		})
 
 		t.Run("S3Sink", func(t *testing.T) {
 			s := &S3Sink{}
-			if err := loadConfig(b, s); err != nil {
+			if err := LoadConfig(b, s); err != nil {
 				t.Fatal(err)
 			}
 
@@ -38,7 +40,7 @@ func TestConfig(t *testing.T) {
 
 		t.Run("FileSink", func(t *testing.T) {
 			s := &FileSink{}
-			if err := loadConfig(b, s); err != nil {
+			if err := LoadConfig(b, s); err != nil {
 				t.Fatal(err)
 			}
 		})

@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ const (
 	defaultHeartbeatTimeout  = 300
 )
 
-func StartHeartbeat(uid, hook string, interval, timeout int) error {
+func StartHeartbeat(version, uid, hook string, interval, timeout int) error {
 	if hook == "" {
 		return nil
 	}
@@ -37,7 +37,7 @@ func StartHeartbeat(uid, hook string, interval, timeout int) error {
 			<-ticker.C
 			q := u.Query()
 			q.Set("uid", uid)
-			q.Set("version", VERSION)
+			q.Set("version", version)
 			u.RawQuery = q.Encode()
 
 			client := http.Client{

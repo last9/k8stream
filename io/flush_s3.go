@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"compress/gzip"
@@ -12,18 +12,19 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 type S3Sink struct {
 	Prefix  string `json:"prefix" validate:"required"`
-	Region  string `json:"aws_region" validate:"required"`
+	Region  string `json:"aws_region", validate:"required"`
 	Bucket  string `json:"aws_bucket" validate:"required"`
 	Profile string `json:"aws_profile" validate:"required"`
 }
 
 func (s *S3Sink) LoadConfig(b json.RawMessage) error {
-	return loadConfig(b, s)
+	return LoadConfig(b, s)
 }
 
 var s3s *session.Session
@@ -70,13 +71,14 @@ func uploadToS3(
 ) error {
 	uploader := s3manager.NewUploader(s)
 
-	fname := fmt.Sprintf("%v/%v_k8s.proto.gz", prefix, filename)
+	fname := fmt.Sprintf("%v/%v.log.gz", prefix, filename)
 	log.Println("Upload", fname)
 	_, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(fname),
-		ACL:    aws.String("private"),
-		Body:   content,
+		Bucket:       aws.String(bucket),
+		Key:          aws.String(fname),
+		ACL:          aws.String("private"),
+		Body:         content,
+		StorageClass: aws.String(s3.ObjectStorageClassStandardIa),
 	})
 
 	return err
