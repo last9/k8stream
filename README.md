@@ -4,11 +4,11 @@
 
 # Background
 
-Kubernetes events are an excellent source of information to monitor and debug the state of your cluster. Kubernetes API server emits events whenever there is a change in some resource it manages. These events are typically stored in etcd for some time and can be observed when you run kubectl get events or kubectl describe. 
+Kubernetes events are an excellent source of information to monitor and debug the state of your cluster. Kubernetes API server emits events whenever there is a change in some resource it manages. These events are typically stored in etcd for some time and can be observed when you run kubectl get events or kubectl describe.
 
-Typical metadata in every event includes entity kind (pod, deployment etc), state (warning, normal, error), reason and message. 
+Typical metadata in every event includes entity kind (pod, deployment etc), state (warning, normal, error), reason and message.
 
-Etcd is a fast key value store to retrieve these events but not for running analytics on top of it to figure out root causes of outages. This is where k8stream comes in as a pipeline to ingest events. 
+Etcd is a fast key value store to retrieve these events but not for running analytics on top of it to figure out root causes of outages. This is where k8stream comes in as a pipeline to ingest events.
 
 # Overview
 
@@ -31,126 +31,48 @@ K8stream is a tool you can use to ingest Kubernetes events and send them to a sp
 
 ### Build
 
-    make build
+```bash
+make build
+```
 
 This should output a ./k8stream binary in the TLD of the repository.
 
 ### Run
 
-    ./k8stream --config=config.json
+```bash
+./k8stream --config=config.json
+```
 
 ### Configuration
 
 Typical configuration looks like:
 
-    {
-        "batch_size": 5, # Flush every n events
-        "batch_interval": 5, # Flush every n seconds
-        "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc", # Unique Identifier to identify this stream in Sinks
-        "file_sink_dir": "/tmp/l9k8stream/", # If the "sink" is configured to be a file
-        "prefix": "local/test-upload", # Prefix for S3 Upload
-        "aws_region": "ap-south-1", # Region of S3 Bucket
-        "aws_bucket": "last9-trials", # S3 Bucket to Upload to
-        "aws_profile": "last9data", # AWS Profile reads from ~/.aws/credentials
-        "sink": "file", # Should use S3 of File Sink
-        "kubeconfig": "./kubeconfig" # Location to kubeconfig file, leave empty when deploying to K8s
-    }
+```javascript
+{
+  "config": {
+    "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc", // UID of this deployment
+    "heartbeat_hook": "https://sample.last9.io", // Heatbeat hook
+    "heartbeat_interval": 60,     // Send a heartbeat signal.
+    "batch_interval": 60,         // Flush every n seconds
+    "batch_size": 10000,          // Flush every n events
+    "sink": "s3"                  // Choices "s3", "file", "memory"
+  },
+  "prefix": "local/test-upload",  // Prefix of S3 Upload
+  "aws_region": "ap-south-1",     // Region of S3 bucket
+  "aws_bucket": "last9-trials",   // S3 Bucket to Upload to
+  "aws_profile": "last9data",     // Profile, in case using creds file
+  "aws_access_key": "1",          // Explicit AccessKey (Not advised)
+  "aws_secret_access_key": "2",   // Explicit SecretKey (Not advised)
+  "kubeconfig": ""                // Location to kubeconfig file, leave empty when deploying to K8s
+}
+```
 
 ### Deploy
 
-Sample-config file at 
+There is a deployment file available at [K8s YAML file](deploy/k8stream.yaml)
 
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: last9
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      namespace: last9
-      name: k8stream
-    ---
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRole
-    metadata:
-      name: k8stream
-    # These rules will be added to the "monitoring" role.
-    rules:
-    - apiGroups: ["*"]
-      resources: ["services", "endpoints", "pods", "nodes", "events", "deployments", "replicasets"]
-      verbs: ["get", "list", "watch"]
-    ---
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: k8stream
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: k8stream
-    subjects:
-      - kind: ServiceAccount
-        namespace: last9
-        name: k8stream
-    ---
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: k8stream-config
-      namespace: last9
-    data:
-      config.json: |
-        {
-          "batch_size": 5,
-          "batch_interval": 5,
-          "prefix": "local/test-upload",
-          "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc",
-          "file_sink_dir": "/tmp/l9k8stream/",
-          "aws_region": "ap-south-1",
-          "aws_bucket": "last9-trials",
-          "aws_profile": "last9data",
-          "aws_access_key": "1",
-          "aws_secret_access_key": "2",
-          "sink": "file",
-          "kubeconfig": ""
-        }
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: k8stream
-      namespace: last9
-    spec:
-      replicas: 1
-      template:
-        metadata:
-          labels:
-            app: k8stream
-            version: v1
-        spec:
-          serviceAccountName: k8stream
-          restartPolicy: Always
-          containers:
-            - name: k8stream
-              imagePullPolicy: Never
-              image: last9inc/k8stream:a14a00f
-              command: ["/app/agent"]
-              args: ["--config", "/data/config.json"]
-              volumeMounts:
-                - mountPath: /data
-                  name: cfg
-          volumes:
-            - name: cfg
-              configMap:
-                name: k8stream-config
-      selector:
-        matchLabels:
-          app: k8stream
-          version: v1
-
-
-In case on in-cluster deployment omit the "kubeconfig" parameter in JSON. Setting this as empty the code falls back to in-cluster authorization.
+In case on in-cluster deployment omit the "kubeconfig" parameter in JSON.
+Setting this as empty the code falls back to in-cluster authorization.
 
 # Detailed Design
 ![](images/k8stream.jpg)
@@ -179,5 +101,6 @@ In case on in-cluster deployment omit the "kubeconfig" parameter in JSON. Settin
 
 # Future Work
 
-- Support for writing to more output streams
-- Adding more metadata like service name and pod IP address for the event
+- [X] Support for adding POD details to an event
+- [ ] Support for writing to more output streams
+- [ ] Adding more metadata like service name for the event
