@@ -1,6 +1,9 @@
 package io
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"log"
+)
 
 type MemSink struct {
 	uuid    string
@@ -18,5 +21,6 @@ func (m *MemSink) Flush(uuid, ident string, d []byte) error {
 	m.batch = ident
 	m.uuid = uuid
 	m.Records[ident] = d
+	log.Println(string(d))
 	return nil
 }

@@ -26,6 +26,7 @@ type Config struct {
 	Raw               json.RawMessage `json:"-"`
 	HeartbeatHook     string          `json:"heartbeat_hook"`
 	HeartbeatInterval int             `json:"heartbeat_interval"`
+	HeartbeatTimeout  int             `json:"heartbeat_timeout_ms"`
 }
 
 var validate *validator.Validate

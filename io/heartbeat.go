@@ -2,16 +2,19 @@ package io
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"syscall"
 	"time"
 )
 
-const defaultHeartbeatInterval = 30
+const (
+	defaultHeartbeatInterval = 30
+	defaultHeartbeatTimeout  = 300
+)
 
-func StartHeartbeat(uid, hook string, interval int) error {
+func StartHeartbeat(version, uid, hook string, interval, timeout int) error {
 	if hook == "" {
 		return nil
 	}
@@ -23,6 +26,9 @@ func StartHeartbeat(uid, hook string, interval int) error {
 	if interval == 0 {
 		interval = defaultHeartbeatInterval
 	}
+	if timeout == 0 {
+		timeout = defaultHeartbeatTimeout
+	}
 
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 
@@ -31,19 +37,21 @@ func StartHeartbeat(uid, hook string, interval int) error {
 			<-ticker.C
 			q := u.Query()
 			q.Set("uid", uid)
+			q.Set("version", version)
 			u.RawQuery = q.Encode()
 
-			resp, err := http.Get(u.String())
+			client := http.Client{
+				Timeout: time.Duration(timeout) * time.Millisecond,
+			}
+			resp, err := client.Get(u.String())
 			if err != nil {
 				log.Print("error while sending heartbeat: %w", err)
+				continue
 			}
 
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				respBody, _ := ioutil.ReadAll(resp.Body)
-
-				log.Printf("error while sending heartbeat: %d %s", resp.StatusCode, string(respBody))
+			if resp.StatusCode == http.StatusUpgradeRequired {
+				syscall.Kill(syscall.Getpid(), syscall.SIGQUIT)
+				return
 			}
 		}
 	}()

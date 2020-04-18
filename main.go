@@ -36,7 +36,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := io.StartHeartbeat(conf.UID, conf.HeartbeatHook, conf.HeartbeatInterval); err != nil {
+	if err := io.StartHeartbeat(
+		VERSION,
+		conf.UID, conf.HeartbeatHook,
+		conf.HeartbeatInterval, conf.HeartbeatTimeout,
+	); err != nil {
 		log.Fatal(err)
 	}
 

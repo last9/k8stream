@@ -30,7 +30,10 @@ func startIngester(f io.Flusher, cfg *L9K8streamConfig, cache *ristretto.Cache) 
 	return msgChan
 }
 
-func doBatch(f io.Flusher, msgChan <-chan interface{}, cache *ristretto.Cache, cfg *L9K8streamConfig) error {
+func doBatch(
+	f io.Flusher, msgChan <-chan interface{},
+	cache *ristretto.Cache, cfg *L9K8streamConfig,
+) error {
 	batch, batchIdent := io.Batch(msgChan, &cfg.Config)
 	if len(batch) == 0 {
 		return nil
@@ -51,9 +54,11 @@ func doBatch(f io.Flusher, msgChan <-chan interface{}, cache *ristretto.Cache, c
 		return err
 	}
 
-	for _, v := range batch {
-		e := v.(*L9Event)
-		cache.Set(e.ID, true, 0)
+	if cache != nil {
+		for _, v := range batch {
+			e := v.(*L9Event)
+			cache.Set(e.ID, true, 0)
+		}
 	}
 
 	return nil
