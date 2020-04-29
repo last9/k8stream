@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 	"strconv"
 	"sync"
 	"testing"
@@ -83,5 +84,21 @@ func TestCache(t *testing.T) {
 				assert.Equal(t, ret.Id, 1)
 			}
 		})
+	})
+
+	t.Run("List values for table", func(t *testing.T) {
+		c.Set("test1", "uid1", nil)
+		c.Set("test1", "uid2", nil)
+		c.Set("test2", "uid3", nil)
+		items, err := c.List("test1")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, len(items), 2)
+		expected := []string{"uid1", "uid2"}
+		sort.Slice(items, func(i, j int) bool {
+			return items[i] < items[j]
+		})
+		assert.Equal(t, items, expected)
 	})
 }

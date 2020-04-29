@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 
@@ -27,7 +28,7 @@ func (h *Handler) OnAdd(obj interface{}) {
 		event := obj.(*v1.Event)
 		err = h.onEvent(event)
 	case *v1.Service:
-		err = h.onService(obj.(*v1.Service))
+		err = h.onService(obj.(*v1.Service), "addedService")
 	}
 
 	if err != nil {
@@ -42,7 +43,7 @@ func (h *Handler) OnUpdate(oldObj, newObj interface{}) {
 		event := newObj.(*v1.Event)
 		err = h.onEvent(event)
 	case *v1.Service:
-		err = h.onService(newObj.(*v1.Service))
+		err = h.onService(newObj.(*v1.Service), "updatedService")
 	}
 
 	if err != nil {
@@ -57,7 +58,7 @@ func (h *Handler) OnDelete(obj interface{}) {
 		event := obj.(*v1.Event)
 		err = h.onEvent(event)
 	case *v1.Service:
-		err = h.onService(obj.(*v1.Service))
+		err = h.onService(obj.(*v1.Service), "deletedService")
 	}
 
 	if err != nil {
@@ -65,7 +66,7 @@ func (h *Handler) OnDelete(obj interface{}) {
 	}
 }
 
-func (h *Handler) onService(s *v1.Service) error {
+func (h *Handler) onService(s *v1.Service, eventType string) error {
 	// Do not watch the default kubernetes services
 	switch s.GetNamespace() {
 	case "kube-system", "kubernetes-dashboard":
@@ -83,10 +84,18 @@ func (h *Handler) onService(s *v1.Service) error {
 		return err
 	}
 
-	// Servuce has been processed already.
+	// Service has been processed already.
 	if r.Exists() {
-		log.Println("Service", suid, "already processed")
-		return nil
+		var existingService L9Event
+		if err := r.Unmarshal(&existingService); err != nil {
+			return err
+		}
+
+		// should process update events for a service too, but ignore if event is already processed.
+		if existingService.ReferenceVersion >= s.GetResourceVersion() {
+			log.Println("Service", suid, "already processed")
+			return nil
+		}
 	}
 
 	// Save service to database
@@ -114,12 +123,13 @@ func (h *Handler) onService(s *v1.Service) error {
 		// Get the existing array. append the new serviceID and set again
 		// Calls for race condition probably. So will need some mutex here.
 		if err := h.db.Set(
-			makeKey("pod-service-", string(p.GetUID())), suid, true,
+			makeKey("pod-service", string(p.GetUID())), suid, true,
 		); err != nil {
 			return err
 		}
 	}
 
+	h.ch <- makeL9ServiceEvent(h.db, s, pods, eventType)
 	return nil
 }
 
@@ -174,6 +184,38 @@ type L9Event struct {
 	Pod                map[string]interface{} `json:"pod,omitempty"`
 }
 
+func makeL9ServiceEvent(db Cachier, s *v1.Service, pods []v1.Pod, eventType string) *L9Event {
+	podMap := map[string]interface{}{}
+	for _, p := range pods {
+		b, err := json.Marshal(miniPodInfo(p))
+		if err != nil {
+			podMap[p.GetName()] = err.Error()
+		} else {
+			podMap[p.GetName()] = string(b)
+		}
+	}
+
+	return &L9Event{
+		ID:                 string(s.GetUID()),
+		Timestamp:          s.GetCreationTimestamp().Unix(),
+		Component:          s.GetName(),
+		Host:               "",
+		Message:            eventType,
+		Namespace:          s.GetNamespace(),
+		Reason:             eventType,
+		ReferenceUID:       "",
+		ReferenceNamespace: "",
+		ReferenceName:      "",
+		ReferenceKind:      "",
+		ReferenceVersion:   s.GetResourceVersion(),
+		ObjectUid:          string(s.GetUID()),
+		Labels:             s.GetLabels(),
+		Annotations:        s.GetAnnotations(),
+		Address:            nil,
+		Pod:                podMap,
+	}
+}
+
 func makeL9Event(
 	db Cachier, e *v1.Event, u *unstructured.Unstructured, address []string,
 ) *L9Event {
@@ -217,16 +259,20 @@ func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error 
 		return err
 	}
 
-	ne.Pod = map[string]interface{}{}
-	ne.Pod["uid"] = p.GetUID()
-	ne.Pod["name"] = p.GetName()
-	ne.Pod["namespace"] = p.GetNamespace()
-	ne.Pod["start_time"] = p.Status.StartTime
-	ne.Pod["ip"] = p.Status.PodIP
-	ne.Pod["host_ip"] = p.Status.HostIP
+	ne.Pod = miniPodInfo(*p)
+	ne.Pod["impacted_services"], err = getPodServices(db, string(p.GetUID()))
+	return err
+}
 
-	ne.Pod["impacted_services"] = getPodServices(db, string(p.GetUID()))
-	return nil
+func miniPodInfo(p v1.Pod) map[string]interface{} {
+	ne := map[string]interface{}{}
+	ne["uid"] = p.GetUID()
+	ne["name"] = p.GetName()
+	ne["namespace"] = p.GetNamespace()
+	ne["start_time"] = p.Status.StartTime
+	ne["ip"] = p.Status.PodIP
+	ne["host_ip"] = p.Status.HostIP
+	return ne
 }
 
 func unstructuredToPod(obj *unstructured.Unstructured) (*v1.Pod, error) {
@@ -242,11 +288,26 @@ func unstructuredToPod(obj *unstructured.Unstructured) (*v1.Pod, error) {
 	return pod, err
 }
 
-func getPodServices(db Cachier, uid string) []string {
+func getPodServices(db Cachier, uid string) ([]string, error) {
 	// DB currently does not have a list method.
 	// We have treated each pod as a seaprate Index, so a prefix should help
 	// hunting all keys that were set with the prefix of pod-service-podId
 	// Need to expose a method in DB.
-	log.Println("get impacted services from the db", uid)
-	return []string{}
+	serviceIds, err := db.List(makeKey("pod-service", uid))
+	if err != nil {
+		return nil, err
+	}
+	services := []string{}
+	for _, sId := range serviceIds {
+		res, err := db.Get("service", sId)
+		if err == nil && res.Exists() {
+			var v *v1.Service
+			if err := res.Unmarshal(&v); err != nil {
+				log.Println(err)
+				continue
+			}
+			services = append(services, v.GetName())
+		}
+	}
+	return services, err
 }

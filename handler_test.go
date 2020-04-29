@@ -46,8 +46,9 @@ func TestMakeL9Event(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		c, _ := newCache()
 		ev := makeL9Event(
-			e.Items[0], nil, []string{"127.0.0.1"},
+			c, e.Items[0], nil, []string{"127.0.0.1"},
 		)
 
 		assert.Equal(t, ev.ID, "19b4506f-95f4-4dd0-8d2d-bf7647997877")

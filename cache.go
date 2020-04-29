@@ -107,10 +107,22 @@ func (c *Cache) ExpireSet(table, uid string, obj interface{}, expires int) error
 	})
 }
 
+func (c *Cache) List(table string) ([]string, error) {
+	var values []string
+	index := makeKey(table, "")
+	return values, c.db.View(func(tx *buntdb.Tx) error {
+		return tx.Ascend(table, func(key, value string) bool {
+			values = append(values, strings.SplitN(key, index, 2)[1])
+			return true
+		})
+	})
+}
+
 type Cachier interface {
 	Set(table, uid string, obj interface{}) error
 	ExpireSet(table, uid string, obj interface{}, expires int) error
 	Get(table, uid string) (*result, error)
+	List(table string) ([]string, error)
 }
 
 func newCache() (Cachier, error) {

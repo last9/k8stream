@@ -56,7 +56,7 @@ func doBatch(
 	if db != nil {
 		for _, v := range batch {
 			e := v.(*L9Event)
-			db.ExpireSet(eventCacheTable, e.ID, true, objectCacheExpiry)
+			db.ExpireSet(eventCacheTable, e.ID, e, objectCacheExpiry)
 		}
 	}
 
