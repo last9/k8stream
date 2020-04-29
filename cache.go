@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	fmt "fmt"
+	"strings"
 	"time"
 
 	"github.com/tidwall/buntdb"
@@ -29,11 +31,17 @@ func (r *result) Exists() bool {
 }
 
 func (r *result) Unmarshal(obj interface{}) error {
+	if r.data == nil {
+		return errors.New("Empty result set cannot be unmarshalled")
+	}
+
 	return json.Unmarshal(r.data, obj)
 }
 
 func makeKey(table, uid string) string {
-	return fmt.Sprintf("%s-%s", table, uid)
+	// Combine to attach a table prefix and convert everything to lowercase
+	// Hello and hELLo are the same tables.
+	return fmt.Sprintf("%s-%s", strings.ToLower(table), uid)
 }
 
 func (c *Cache) Get(table, uid string) (*result, error) {
@@ -45,6 +53,10 @@ func (c *Cache) Get(table, uid string) (*result, error) {
 		if err != nil {
 			// NOTE: Weird syntax by buntDB where it returns a pre-constructed
 			// value rather than an error type.
+			if err == buntdb.ErrNotFound {
+				r.data = nil
+				return nil
+			}
 			return err
 		}
 

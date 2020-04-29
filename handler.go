@@ -4,51 +4,127 @@ import (
 	"log"
 	"strings"
 
-	"github.com/dgraph-io/ristretto"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientscheme "k8s.io/client-go/kubernetes/scheme"
 )
 
+const (
+	eventCacheTable = "events"
+)
+
 type Handler struct {
 	client *kubernetesClient
 	ch     chan<- interface{}
-	*ristretto.Cache
+	db     Cachier
 }
 
 func (h *Handler) OnAdd(obj interface{}) {
-	event := obj.(*v1.Event)
-	h.onEvent(event)
+	var err error
+	switch obj.(type) {
+	case *v1.Event:
+		event := obj.(*v1.Event)
+		err = h.onEvent(event)
+	case *v1.Service:
+		err = h.onService(obj.(*v1.Service))
+	}
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (h *Handler) OnUpdate(oldObj, newObj interface{}) {
-	event := newObj.(*v1.Event)
-	h.onEvent(event)
+	var err error
+	switch newObj.(type) {
+	case *v1.Event:
+		event := newObj.(*v1.Event)
+		err = h.onEvent(event)
+	case *v1.Service:
+		err = h.onService(newObj.(*v1.Service))
+	}
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (h *Handler) OnDelete(obj interface{}) {
-	// Ignore deletes
-	event := obj.(*v1.Event)
-	h.onEvent(event)
-}
-
-func (h *Handler) onEvent(e *v1.Event) {
-	if _, ok := h.Cache.Get(string(e.UID)); ok {
-		return
+	var err error
+	switch obj.(type) {
+	case *v1.Event:
+		event := obj.(*v1.Event)
+		err = h.onEvent(event)
+	case *v1.Service:
+		err = h.onService(obj.(*v1.Service))
 	}
 
-	obj, err := h.client.getObject(h.Cache, &e.InvolvedObject)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func findServicePods(s *v1.Service) ([]interface{}, error) {
+	return nil, nil
+}
+
+func (h *Handler) onService(s *v1.Service) error {
+	// Save service to database
+	// Maybe use s.SelfLink since UID is literally not exposed elsewhere for
+	// a service other than the service itself being aware of it.
+	// And a change in the service will change the UID afterall.
+	if err := h.db.Set("service", string(s.UID), s); err != nil {
+		return err
+	}
+
+	// Find all PODS for this service so that a rerverse lookup is possible.
+	pods, err := findServicePods(s)
+	if err != nil {
+		return err
+	}
+
+	// Save service -> pod
+	if err := h.db.Set("service-pods", string(s.UID), pods); err != nil {
+		return err
+	}
+
+	// Also save pod -> service denormalized for reverse Index lookup
+	for _, p := range pods {
+		// A pod may be behind multiple services.
+		// Get the existing array. append the new serviceID and set again
+		// Calls for race condition probably. So will need some mutex here.
+		if err := h.db.Set("pod-service", p.(string), s); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h *Handler) onEvent(e *v1.Event) error {
+	r, err := h.db.Get(eventCacheTable, string(e.UID))
+	if err != nil {
+		return err
+	}
+
+	// Event has been processed already.
+	if r.Exists() {
+		return nil
+	}
+
+	obj, err := h.client.getObject(h.db, &e.InvolvedObject)
 	if err != nil {
 		log.Println(err)
 	}
 
-	addr, err := h.client.getNodeAddress(h.Cache, e.Source.Host)
+	addr, err := h.client.getNodeAddress(h.db, e.Source.Host)
 	if err != nil {
 		log.Println(err)
 	}
 
 	h.ch <- makeL9Event(e, obj, addr)
+	return nil
 }
 
 type L9Event struct {
