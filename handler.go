@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -196,8 +198,8 @@ func makeL9ServiceEvent(db Cachier, s *v1.Service, pods []v1.Pod, eventType stri
 	}
 
 	return &L9Event{
-		ID:                 string(s.GetUID()),
-		Timestamp:          s.GetCreationTimestamp().Unix(),
+		ID:                 fmt.Sprintf("%s-%s", s.GetUID(), s.GetResourceVersion()),
+		Timestamp:          time.Now().Unix(),
 		Component:          s.GetName(),
 		Host:               "",
 		Message:            eventType,
