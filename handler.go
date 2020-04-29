@@ -65,27 +65,46 @@ func (h *Handler) OnDelete(obj interface{}) {
 	}
 }
 
-func findServicePods(s *v1.Service) ([]interface{}, error) {
-	return nil, nil
-}
-
 func (h *Handler) onService(s *v1.Service) error {
-	// Save service to database
-	// Maybe use s.SelfLink since UID is literally not exposed elsewhere for
-	// a service other than the service itself being aware of it.
-	// And a change in the service will change the UID afterall.
-	if err := h.db.Set("service", string(s.UID), s); err != nil {
-		return err
+	// Do not watch the default kubernetes services
+	switch s.GetNamespace() {
+	case "kube-system", "kubernetes-dashboard":
+		return nil
+	default:
+		if s.GetName() == "kubernetes" {
+			return nil
+		}
 	}
 
-	// Find all PODS for this service so that a rerverse lookup is possible.
-	pods, err := findServicePods(s)
+	suid := string(s.GetUID())
+
+	r, err := h.db.Get(eventCacheTable, suid)
 	if err != nil {
 		return err
 	}
 
-	// Save service -> pod
-	if err := h.db.Set("service-pods", string(s.UID), pods); err != nil {
+	// Servuce has been processed already.
+	if r.Exists() {
+		log.Println("Service", suid, "already processed")
+		return nil
+	}
+
+	// Save service to database
+	// Maybe use s.SelfLink since UID is literally not exposed elsewhere for
+	// a service other than the service itself being aware of it.
+	// And a change in the service will change the UID afterall.
+	if err := h.db.Set("service", suid, s); err != nil {
+		return err
+	}
+
+	// Find all PODS for this service so that a rerverse lookup is possible.
+	pods, err := h.client.getPods(h.db, s)
+	if err != nil {
+		return err
+	}
+
+	// Save service -> pods
+	if err := h.db.Set("service-pods", suid, pods); err != nil {
 		return err
 	}
 
@@ -94,7 +113,9 @@ func (h *Handler) onService(s *v1.Service) error {
 		// A pod may be behind multiple services.
 		// Get the existing array. append the new serviceID and set again
 		// Calls for race condition probably. So will need some mutex here.
-		if err := h.db.Set("pod-service", p.(string), s); err != nil {
+		if err := h.db.Set(
+			makeKey("pod-service-", string(p.GetUID())), suid, true,
+		); err != nil {
 			return err
 		}
 	}
@@ -103,6 +124,12 @@ func (h *Handler) onService(s *v1.Service) error {
 }
 
 func (h *Handler) onEvent(e *v1.Event) error {
+	// Do not watch the default kubernetes services
+	switch e.GetNamespace() {
+	case "kube-system", "kubernetes", "kubernetes-dashboard":
+		return nil
+	}
+
 	r, err := h.db.Get(eventCacheTable, string(e.UID))
 	if err != nil {
 		return err
@@ -123,7 +150,7 @@ func (h *Handler) onEvent(e *v1.Event) error {
 		log.Println(err)
 	}
 
-	h.ch <- makeL9Event(e, obj, addr)
+	h.ch <- makeL9Event(h.db, e, obj, addr)
 	return nil
 }
 
@@ -148,7 +175,7 @@ type L9Event struct {
 }
 
 func makeL9Event(
-	e *v1.Event, u *unstructured.Unstructured, address []string,
+	db Cachier, e *v1.Event, u *unstructured.Unstructured, address []string,
 ) *L9Event {
 	ne := &L9Event{
 		ID:               string(e.UID),
@@ -165,7 +192,7 @@ func makeL9Event(
 	}
 
 	if u != nil {
-		if err := addPodDetails(ne, u); err != nil {
+		if err := addPodDetails(db, ne, u); err != nil {
 			log.Println(err)
 		}
 
@@ -180,7 +207,7 @@ func makeL9Event(
 	return ne
 }
 
-func addPodDetails(ne *L9Event, u *unstructured.Unstructured) error {
+func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error {
 	if strings.ToLower(u.GetKind()) != "pod" {
 		return nil
 	}
@@ -191,9 +218,14 @@ func addPodDetails(ne *L9Event, u *unstructured.Unstructured) error {
 	}
 
 	ne.Pod = map[string]interface{}{}
+	ne.Pod["uid"] = p.GetUID()
+	ne.Pod["name"] = p.GetName()
+	ne.Pod["namespace"] = p.GetNamespace()
 	ne.Pod["start_time"] = p.Status.StartTime
 	ne.Pod["ip"] = p.Status.PodIP
 	ne.Pod["host_ip"] = p.Status.HostIP
+
+	ne.Pod["impacted_services"] = getPodServices(db, string(p.GetUID()))
 	return nil
 }
 
@@ -208,4 +240,13 @@ func unstructuredToPod(obj *unstructured.Unstructured) (*v1.Pod, error) {
 	pod.Kind = ""
 	pod.APIVersion = ""
 	return pod, err
+}
+
+func getPodServices(db Cachier, uid string) []string {
+	// DB currently does not have a list method.
+	// We have treated each pod as a seaprate Index, so a prefix should help
+	// hunting all keys that were set with the prefix of pod-service-podId
+	// Need to expose a method in DB.
+	log.Println("get impacted services from the db", uid)
+	return []string{}
 }

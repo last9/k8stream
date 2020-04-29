@@ -1,10 +1,13 @@
 package main
 
 import (
+	"log"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -55,6 +58,30 @@ func newK8sClient(kubeconf string) (*kubernetesClient, error) {
 		Interface:  intf,
 		RESTMapper: restmapper.NewDiscoveryRESTMapper(groupResources),
 	}, nil
+}
+
+func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error) {
+	namespace := s.GetNamespace()
+	log.Println(
+		"namespace", namespace,
+		"serviceName:", s.GetName(),
+		"serviceKind:", s.Kind,
+		"serviceLabels:", s.GetLabels(),
+		s.Spec.Ports,
+		"serviceSelector:", s.Spec.Selector,
+	)
+
+	q := labels.Set(s.Spec.Selector)
+	pods, err := kc.Clientset.CoreV1().Pods(namespace).List(
+		metav1.ListOptions{LabelSelector: q.String()},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pods.Items, nil
+
 }
 
 func (kc *kubernetesClient) getNodeAddress(db Cachier, node string) ([]string, error) {
