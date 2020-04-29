@@ -44,14 +44,21 @@ func TestCache(t *testing.T) {
 			for ix := 0; ix < 4; ix++ {
 				t.Run("Get a key", func(t *testing.T) {
 					var val int
-					missing, err := c.Get("table", strconv.Itoa(ix), &val)
-					if missing {
+					r, err := c.Get("table", strconv.Itoa(ix))
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if !r.Exists() {
 						t.Fatal("Value", ix, "is missing")
-					} else if err != nil {
+					}
+
+					if err := r.Unmarshal(&val); err != nil {
 						t.Fatal(err)
 					} else {
 						assert.Equal(t, ix, val)
 					}
+
 				})
 			}
 		})
@@ -64,8 +71,16 @@ func TestCache(t *testing.T) {
 
 		t.Run("Fetch the struct", func(t *testing.T) {
 			var ret testItem
-			if _, err := c.Get("test", "uid1", &ret); err != nil {
+			res, err := c.Get("test", "uid1")
+			if err != nil {
 				t.Fatal(err)
+			}
+
+			if err := res.Unmarshal(&ret); err != nil {
+				t.Fatal(err)
+			} else {
+				assert.Equal(t, ret.Foo, "foo")
+				assert.Equal(t, ret.Id, 1)
 			}
 		})
 	})

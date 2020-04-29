@@ -20,31 +20,36 @@ type Cache struct {
 
 // Item that is internally saved to the database.
 // Don't expect the Uid to be generated on Insert.
-type dbItem struct {
-	Uid string      `json:"uid"`
-	Obj interface{} `json:"obj"`
+type result struct {
+	data json.RawMessage
+}
+
+func (r *result) Exists() bool {
+	return r.data != nil
+}
+
+func (r *result) Unmarshal(obj interface{}) error {
+	return json.Unmarshal(r.data, obj)
 }
 
 func makeKey(table, uid string) string {
 	return fmt.Sprintf("%s-%s", table, uid)
 }
 
-func (c *Cache) Get(table, uid string, obj interface{}) (bool, error) {
+func (c *Cache) Get(table, uid string) (*result, error) {
 	key := makeKey(table, uid)
-	var missing bool
+	r := &result{}
 
-	return missing, c.db.View(func(tx *buntdb.Tx) error {
+	return r, c.db.View(func(tx *buntdb.Tx) error {
 		val, err := tx.Get(key) //IgnoreExpiredValue
 		if err != nil {
 			// NOTE: Weird syntax by buntDB where it returns a pre-constructed
 			// value rather than an error type.
-			if err == buntdb.ErrNotFound {
-				missing = true
-			}
 			return err
 		}
 
-		return json.Unmarshal([]byte(val), obj)
+		r.data = []byte(val)
+		return nil
 	})
 }
 
@@ -93,7 +98,7 @@ func (c *Cache) ExpireSet(table, uid string, obj interface{}, expires int) error
 type Cachier interface {
 	Set(table, uid string, obj interface{}) error
 	ExpireSet(table, uid string, obj interface{}, expires int) error
-	Get(table, uid string, obj interface{}) (bool, error)
+	Get(table, uid string) (*result, error)
 }
 
 func newCache() (Cachier, error) {
