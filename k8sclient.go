@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -60,17 +58,22 @@ func newK8sClient(kubeconf string) (*kubernetesClient, error) {
 	}, nil
 }
 
-func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error) {
+func (kc *kubernetesClient) getReplicationControllers(db Cachier, s *v1.Service) ([]v1.ReplicationController, error) {
 	namespace := s.GetNamespace()
-	log.Println(
-		"namespace", namespace,
-		"serviceName:", s.GetName(),
-		"serviceKind:", s.Kind,
-		"serviceLabels:", s.GetLabels(),
-		s.Spec.Ports,
-		"serviceSelector:", s.Spec.Selector,
+	q := labels.Set(s.Spec.Selector)
+	r, err := kc.Clientset.CoreV1().ReplicationControllers(namespace).List(
+		metav1.ListOptions{LabelSelector: q.String()},
 	)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Items, nil
+}
+
+func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error) {
+	namespace := s.GetNamespace()
 	q := labels.Set(s.Spec.Selector)
 	pods, err := kc.Clientset.CoreV1().Pods(namespace).List(
 		metav1.ListOptions{LabelSelector: q.String()},

@@ -47,7 +47,7 @@ func TestMakeL9Event(t *testing.T) {
 		}
 
 		c, _ := newCache()
-		ev := makeL9Event(
+		ev := makeL9EventDetails(
 			c, e.Items[0], nil, []string{"127.0.0.1"},
 		)
 

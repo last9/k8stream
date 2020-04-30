@@ -70,6 +70,13 @@ func (c *Cache) Set(table, uid string, obj interface{}) error {
 	return c.ExpireSet(table, uid, obj, 0)
 }
 
+// Table is just a prefix on which an Index exists.
+// This is a way to emulate buckets in buntDB. In a key-value DB a query
+// like find all keys that are of the same type are challenging.
+// In absence of buckets and partial Indexes, prefix can be exploited
+// to deliver the same feature.
+
+// Set an object in table with Expiry, and create a new Index if none exists
 func (c *Cache) ExpireSet(table, uid string, obj interface{}, expires int) error {
 	b, err := json.Marshal(obj)
 	if err != nil {
@@ -107,6 +114,8 @@ func (c *Cache) ExpireSet(table, uid string, obj interface{}, expires int) error
 	})
 }
 
+// Use the Index to List all the Keys in the Index.
+// If the index doesn't exist. the method raises an IndexNotFound error.
 func (c *Cache) List(table string) ([]string, error) {
 	var values []string
 	index := makeKey(table, "")
