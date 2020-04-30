@@ -1,19 +1,22 @@
 package main
 
 import (
-	fmt "fmt"
-
-	"github.com/dgraph-io/ristretto"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+)
+
+const (
+	objectCacheTable  = "object"
+	objectCacheExpiry = 600
 )
 
 type kubernetesClient struct {
@@ -55,18 +58,49 @@ func newK8sClient(kubeconf string) (*kubernetesClient, error) {
 	}, nil
 }
 
-func (kc *kubernetesClient) getNodeAddress(cache *ristretto.Cache, node string) ([]string, error) {
+func (kc *kubernetesClient) getReplicationControllers(db Cachier, s *v1.Service) ([]v1.ReplicationController, error) {
+	namespace := s.GetNamespace()
+	q := labels.Set(s.Spec.Selector)
+	r, err := kc.Clientset.CoreV1().ReplicationControllers(namespace).List(
+		metav1.ListOptions{LabelSelector: q.String()},
+	)
 
-	if node == "" {
-		return []string{}, nil
+	if err != nil {
+		return nil, err
 	}
 
-	ident := fmt.Sprintf("node-%v", node)
-	cached, ok := cache.Get(ident)
-	if ok {
-		if t, ok := cached.([]string); ok {
-			return t, nil
-		}
+	return r.Items, nil
+}
+
+func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error) {
+	namespace := s.GetNamespace()
+	q := labels.Set(s.Spec.Selector)
+	pods, err := kc.Clientset.CoreV1().Pods(namespace).List(
+		metav1.ListOptions{LabelSelector: q.String()},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pods.Items, nil
+
+}
+
+func (kc *kubernetesClient) getNodeAddress(db Cachier, node string) ([]string, error) {
+	addr := []string{}
+
+	if node == "" {
+		return addr, nil
+	}
+
+	res, err := db.Get("node", node)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Exists() {
+		return addr, res.Unmarshal(&addr)
 	}
 
 	n, err := kc.Clientset.CoreV1().Nodes().Get(node, metav1.GetOptions{})
@@ -74,21 +108,25 @@ func (kc *kubernetesClient) getNodeAddress(cache *ristretto.Cache, node string) 
 		return nil, err
 	}
 
-	address := []string{}
 	for _, i := range n.Status.Addresses {
-		address = append(address, i.Address)
+		addr = append(addr, i.Address)
 	}
 
-	defer cache.Set(ident, address, 1)
-	return address, nil
+	defer db.ExpireSet("node", node, addr, objectCacheExpiry)
+	return addr, nil
 }
 
-func (kc *kubernetesClient) getObject(cache *ristretto.Cache, ref *v1.ObjectReference) (*unstructured.Unstructured, error) {
+func (kc *kubernetesClient) getObject(db Cachier, ref *v1.ObjectReference) (*unstructured.Unstructured, error) {
 	uid := string(ref.UID)
 
-	cached, ok := cache.Get(uid)
-	if ok {
-		return cached.(*unstructured.Unstructured), nil
+	var cached *unstructured.Unstructured
+	result, err := db.Get(objectCacheTable, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.Exists() {
+		return cached, result.Unmarshal(&cached)
 	}
 
 	gv, err := schema.ParseGroupVersion(ref.APIVersion)
@@ -103,14 +141,13 @@ func (kc *kubernetesClient) getObject(cache *ristretto.Cache, ref *v1.ObjectRefe
 	}
 
 	item, err := kc.Interface.Resource(mapping.Resource).Namespace(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
-
 	if err != nil {
 		return nil, err
 	}
 
-	defer cache.Set(uid, item, 1)
+	defer db.ExpireSet(objectCacheTable, uid, item, objectCacheExpiry)
 	if ref.UID != item.GetUID() {
-		defer cache.Set(string(item.GetUID()), item, 1)
+		defer db.ExpireSet(objectCacheTable, string(item.GetUID()), item, objectCacheExpiry)
 	}
 
 	return item, nil

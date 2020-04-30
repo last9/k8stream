@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/dgraph-io/ristretto"
 	"github.com/last9/k8stream/io"
 )
 
@@ -17,11 +16,11 @@ const (
 // a forever loop of listening to messages and flush them to disk till the buffer
 // overflows the batchSize or the lease if past the batchInterval. While a batch
 // is being flushed, the channels stop listening.
-func startIngester(f io.Flusher, cfg *L9K8streamConfig, cache *ristretto.Cache) chan<- interface{} {
+func startIngester(f io.Flusher, cfg *L9K8streamConfig, db Cachier) chan<- interface{} {
 	msgChan := make(chan interface{}, cfg.BatchSize)
 	go func() {
 		for {
-			if err := doBatch(f, msgChan, cache, cfg); err != nil {
+			if err := doBatch(f, msgChan, db, cfg); err != nil {
 				log.Println(err)
 			}
 		}
@@ -32,7 +31,7 @@ func startIngester(f io.Flusher, cfg *L9K8streamConfig, cache *ristretto.Cache) 
 
 func doBatch(
 	f io.Flusher, msgChan <-chan interface{},
-	cache *ristretto.Cache, cfg *L9K8streamConfig,
+	db Cachier, cfg *L9K8streamConfig,
 ) error {
 	batch, batchIdent := io.Batch(msgChan, &cfg.Config)
 	if len(batch) == 0 {
@@ -54,10 +53,10 @@ func doBatch(
 		return err
 	}
 
-	if cache != nil {
+	if db != nil {
 		for _, v := range batch {
 			e := v.(*L9Event)
-			cache.Set(e.ID, true, 0)
+			db.ExpireSet(eventCacheTable, e.ID, e, objectCacheExpiry)
 		}
 	}
 

@@ -15,7 +15,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const VERSION = "0.0.1"
+const VERSION = "0.0.2"
 
 var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Create a LRU Cache
-	mcache, err := cacheClient()
+	mcache, err := newCache()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,6 +74,12 @@ func main() {
 		kc.Clientset,
 		time.Duration(conf.ResyncInterval)*time.Second,
 	)
+
+	// Service Informer to capture service events, since they dont show up
+	// in the defaults events interface.
+	svcInformer := factory.Core().V1().Services().Informer()
+	svcInformer.AddEventHandler(h)
+	go svcInformer.Run(stopCh)
 
 	informer := factory.Core().V1().Events().Informer()
 	informer.AddEventHandler(h)
