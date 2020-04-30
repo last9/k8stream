@@ -83,10 +83,10 @@ func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.S
 		return nil, err
 	}
 
-	if err := cacheServiceReplicationControllers(c, db, s); err != nil {
-		return nil, err
-	}
-
+	/*	if err := cacheServiceReplicationControllers(c, db, s); err != nil {
+			return nil, err
+		}
+	*/
 	podMap := map[string]interface{}{}
 	for _, p := range pods {
 		b, err := json.Marshal(miniPodInfo(p))
