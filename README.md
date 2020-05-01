@@ -57,6 +57,7 @@ Typical configuration looks like:
     "batch_size": 10000,          // Flush every n events
     "sink": "s3"                  // Choices "s3", "file", "memory"
   },
+  "namespaces": ["default"], // Skip this key if all namespaces should be captured. By default, kube-system, kubernetes, kubernetes-dashboard are always skipped
   "prefix": "local/test-upload",  // Prefix of S3 Upload
   "aws_region": "ap-south-1",     // Region of S3 bucket
   "aws_bucket": "last9-trials",   // S3 Bucket to Upload to

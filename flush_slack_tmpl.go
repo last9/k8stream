@@ -2,75 +2,90 @@ package main
 
 const slackTmpl = `
 {
-	"text": "Last9 Infrastructure Event Alert",
-    "blocks": [
+  "text": "Last9 Infrastructure Event Alert",
+  "blocks": [
+    {{range $i, $msg := .Messages}}
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*{{(joinStr $msg.Services ",")}}* impacted\nError {{$msg.Message}}\n"
+      },
+      "accessory": {
+        "type": "button",
+        "url": "https://app.last9.io",
+        "value": "{{$msg.ID}}",
+        "style": "primary",
+        "text": {
+          "type": "plain_text",
+          "text": "More Details",
+          "emoji": true
+        }
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
         {
-            "type": "section",
-            "text": {
-				"type": "mrkdwn",
-				"text": "*Service Alert*\nLast9 K8stream alert.\nPlease refer to <https://github.com/last9/k8stream|K8stream> for configuration options to filter namespace or event-types."
-			},
-			"accessory": {
-        		"type": "image",
-        		"image_url": "https://avatars2.githubusercontent.com/u/53378302?s=100&v=4",
-        		"alt_text": "Last9 Bot"
-      		}
-        },
-        {{range $i, $msg := .Messages}}
-        {
-            "type": "divider"
+          "type": "mrkdwn",
+          "text": "*Timestamp* {{(formatTime $msg.Timestamp)}}"
         },
         {
-            "type": "section",
-            "fields": [
-				{
-                    "type": "mrkdwn",
-                    "text": "*Timestamp*\n{{(formatTime $msg.Timestamp)}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Component*\n{{$msg.Component}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Namespace*\n{{$msg.Namespace}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Event Reason*\n{{$msg.Reason}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Message*\n{{$msg.Message}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Host*\n{{$msg.Host}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Affected Services*\n{{(joinStr $msg.Services "\\n")}}"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "*Object Details*\n{{$msg.ReferenceKind}} {{$msg.ReferenceName}}"
-                },
-				{
-					"type": "mrkdwn",
-					"text": "*Pod* {{$msg.Pod.name}} | *PodIP* {{$msg.Pod.ip}} | *HostIP* {{$msg.Pod.host_ip}}"
-				}
-            ]
+          "type": "mrkdwn",
+          "text": "*Component* {{$msg.Component}}"
         },
+        {
+          "type": "mrkdwn",
+          "text": "*Namespace* {{$msg.Namespace}}"
+        }
+        {{if $msg.ReferenceName}},
+        {
+          "type": "mrkdwn",
+          "text": "*Reference* {{$msg.ReferenceKind}} {{$msg.ReferenceName}}"
+        }
         {{end}}
-		{
-      		"type": "context",
-      		"elements": [
-        		{
-          		"type": "mrkdwn",
-          		"text": ":eyes: View all details on <https://app.last9.io|Last9>\n:question: Get help at any time with /last9 help"
-        		}
-      		]
-    	}
-    ]
+      ]
+    },
+    {{if $msg.Pod.ip}}
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "*Pod* {{$msg.Pod.name}}"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*PodIP* {{$msg.Pod.ip}}"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*HostIP* {{$msg.Pod.host_ip}}"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Host* {{$msg.Host}}"
+        }
+      ]
+    },
+    {{end}}
+    {
+      "type": "divider"
+    },
+    {{end}}
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": ":eyes: Please refer to <https://github.com/last9/k8stream|K8stream> for configuration options to filter namespace or event-types."
+        },
+        {
+          "type": "mrkdwn",
+          "text": ":question: Get help at any time at <https://last9.io|Last9>"
+        }
+      ]
+    }
+  ]
 }
 `

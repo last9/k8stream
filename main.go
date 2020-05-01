@@ -1,7 +1,7 @@
 package main
 
 import (
-	fmt "fmt"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -77,7 +77,7 @@ func main() {
 
 	// Start a batcher, returns a channel.
 	ch := startIngester(f, conf, mcache)
-	h := &Handler{kc, ch, mcache}
+	h := &Handler{kc, ch, mcache, conf}
 
 	stopCh := make(chan struct{})
 	factory := informers.NewSharedInformerFactory(
