@@ -18,4 +18,7 @@ func setDefaults(c *L9K8streamConfig) {
 	if c.ResyncInterval == 0 {
 		c.ResyncInterval = DEFAULT_RESYNC_INTERVAL
 	}
+	if c.Sink == "slack" {
+		c.ResyncInterval = 0
+	}
 }
