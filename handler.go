@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	serviceTable                      = "service"
-	eventCacheTable                   = "events"
-	servicePodsTable                  = "service-pods"
-	podServicesTable                  = "pod-service"
-	serviceReplicationControllerTable = "service-replication"
-	replicationControllerServiceTable = "replication-service"
+	serviceTable     = "service"
+	eventCacheTable  = "events"
+	servicePodsTable = "service-pods"
+	podServicesTable = "pod-service"
+	serviceAppsTable = "service-apps"
+	appServicesTable = "apps-service"
 )
 
 type Handler struct {

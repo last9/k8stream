@@ -1,6 +1,7 @@
 package main
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,18 +59,18 @@ func newK8sClient(kubeconf string) (*kubernetesClient, error) {
 	}, nil
 }
 
-func (kc *kubernetesClient) getReplicationControllers(db Cachier, s *v1.Service) ([]v1.ReplicationController, error) {
+func (kc *kubernetesClient) getApps(db Cachier, s *v1.Service) ([]appsv1.Deployment, error) {
 	namespace := s.GetNamespace()
+
 	q := labels.Set(s.Spec.Selector)
-	r, err := kc.Clientset.CoreV1().ReplicationControllers(namespace).List(
+	apps, err := kc.Clientset.AppsV1().Deployments(namespace).List(
 		metav1.ListOptions{LabelSelector: q.String()},
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return r.Items, nil
+	return apps.Items, nil
 }
 
 func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error) {

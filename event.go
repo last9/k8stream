@@ -68,8 +68,8 @@ func makeL9EventDetails(db Cachier, e *v1.Event, u *unstructured.Unstructured, a
 
 	var err error
 	switch strings.ToLower(u.GetKind()) {
-	case "replicaset":
-		//ne.Services, err = impactedServices(db, string(u.GetUID()), replicationControllerServiceTable)
+	case "deployment":
+		ne.Services, err = impactedServices(db, string(u.GetUID()), appServicesTable)
 	case "pod":
 		err = addPodDetails(db, ne, u)
 	default:

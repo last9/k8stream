@@ -36,28 +36,28 @@ func cacheServicePods(c *kubernetesClient, db Cachier, s *v1.Service) ([]v1.Pod,
 	return pods, nil
 }
 
-func cacheServiceReplicationControllers(c *kubernetesClient, db Cachier, s *v1.Service) error {
+func cacheServiceApps(c *kubernetesClient, db Cachier, s *v1.Service) error {
 	suid := string(s.GetUID())
 
 	// Find all Replication Controllers for this service
 	// so that a rerverse lookup is possible.
-	rcs, err := c.getReplicationControllers(db, s)
+	apps, err := c.getApps(db, s)
 	if err != nil {
 		return err
 	}
 
 	// Save service -> ReplicationControllers
-	if err := db.Set(serviceReplicationControllerTable, suid, rcs); err != nil {
+	if err := db.Set(serviceAppsTable, suid, apps); err != nil {
 		return err
 	}
 
 	// Also save rc -> service denormalized for reverse Index lookup
-	for _, r := range rcs {
+	for _, r := range apps {
 		// A pod may be behind multiple services.
 		// Get the existing array. append the new serviceID and set again
 		// Calls for race condition probably. So will need some mutex here.
 		if err := db.Set(
-			makeKey(replicationControllerServiceTable, string(r.GetUID())), suid, true,
+			makeKey(appServicesTable, string(r.GetUID())), suid, true,
 		); err != nil {
 			return err
 		}
@@ -83,10 +83,10 @@ func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.S
 		return nil, err
 	}
 
-	/*	if err := cacheServiceReplicationControllers(c, db, s); err != nil {
-			return nil, err
-		}
-	*/
+	if err := cacheServiceApps(c, db, s); err != nil {
+		return nil, err
+	}
+
 	podMap := map[string]interface{}{}
 	for _, p := range pods {
 		b, err := json.Marshal(miniPodInfo(p))
