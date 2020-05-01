@@ -10,8 +10,10 @@ const (
 
 type L9K8streamConfig struct {
 	io.Config      `json:"config" validate:"required"`
-	KubeConfig     string `json:"kubeconfig"`
-	ResyncInterval int    `json:"resync_interval"`
+	KubeConfig     string   `json:"kubeconfig"`
+	ResyncInterval int      `json:"resync_interval"`
+	Namespaces     []string `json:"namespaces"`
+	Events         []string `json:"events"`
 }
 
 func setDefaults(c *L9K8streamConfig) {

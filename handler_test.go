@@ -64,7 +64,7 @@ func TestMakeL9Event(t *testing.T) {
 		}()
 
 		wg.Add(1)
-		h := &Handler{&kubernetesClient{}, ch, mCache}
+		h := &Handler{&kubernetesClient{}, ch, mCache, &L9K8streamConfig{}}
 		h.OnAdd(e.Items[0])
 		wg.Wait()
 	})

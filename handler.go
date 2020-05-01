@@ -20,6 +20,7 @@ type Handler struct {
 	client *kubernetesClient
 	ch     chan<- interface{}
 	db     Cachier
+	conf   *L9K8streamConfig
 }
 
 func (h *Handler) OnAdd(obj interface{}) {
@@ -67,10 +68,23 @@ func (h *Handler) OnDelete(obj interface{}) {
 	}
 }
 
+func contains(v string, a []string) bool {
+	for _, i := range a {
+		if i == v {
+			return true
+		}
+	}
+	return false
+}
+
+var skipNamespaces = []string{"kube-system", "kubernetes", "kubernetes-dashboard"}
+
 func (h *Handler) onService(s *v1.Service, eventType string) error {
 	// Do not watch the default kubernetes services
-	switch s.GetNamespace() {
-	case "kube-system", "kubernetes-dashboard":
+	switch {
+	case contains(s.GetNamespace(), skipNamespaces):
+		return nil
+	case len(h.conf.Namespaces) > 0 && !contains(s.GetNamespace(), h.conf.Namespaces):
 		return nil
 	default:
 		if s.GetName() == "kubernetes" {
@@ -109,10 +123,19 @@ func (h *Handler) onService(s *v1.Service, eventType string) error {
 	return nil
 }
 
+// Check Event eligibility based on:
+// Namespace should be one amongst the reserved namespaces.
+// If namespaces are provided, this namespace should be in it.
+// If events whitelist is provided, this event should be in it.
+func (h *Handler) isEligible(obj *v1.Event) bool {
+	if contains(obj.Namespace, skipNamespaces) {
+		return false
+	}
+	return (len(h.conf.Namespaces) == 0 || contains(obj.Namespace, h.conf.Namespaces)) && (len(h.conf.Events) == 0 || contains(obj.Reason, h.conf.Events))
+}
+
 func (h *Handler) onEvent(e *v1.Event) error {
-	// Do not watch the default kubernetes services
-	switch e.GetNamespace() {
-	case "kube-system", "kubernetes", "kubernetes-dashboard":
+	if !h.isEligible(e) {
 		return nil
 	}
 

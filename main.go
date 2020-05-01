@@ -1,7 +1,7 @@
 package main
 
 import (
-	fmt "fmt"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -15,11 +15,21 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const VERSION = "0.0.2"
+const VERSION = "0.0.3"
 
 var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
 )
+
+func getFlusher(conf *L9K8streamConfig) (io.Flusher, error) {
+	switch conf.Sink {
+	case "slack":
+		s := &Slack{}
+		return s, s.LoadConfig(conf.Raw)
+	default:
+		return io.GetFlusher(&conf.Config)
+	}
+}
 
 func main() {
 	kingpin.Version(VERSION)
@@ -60,14 +70,14 @@ func main() {
 	}
 
 	// Get Flusher instance from IO
-	f, err := io.GetFlusher(&conf.Config)
+	f, err := getFlusher(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Start a batcher, returns a channel.
 	ch := startIngester(f, conf, mcache)
-	h := &Handler{kc, ch, mcache}
+	h := &Handler{kc, ch, mcache, conf}
 
 	stopCh := make(chan struct{})
 	factory := informers.NewSharedInformerFactory(
