@@ -95,6 +95,11 @@ func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error 
 	}
 
 	ne.Pod = miniPodInfo(*p)
+        // There are times when an Event may come ahead of the
+        // corresponding service event. Usually happens when
+        // k8stream has just started. A simple solution is to retry
+        // with Linear backoff. If nothing shows up for 10 seconds, 
+        // probably nothing ever will.
 	for ix := 0; ix < 5; ix++ {
 		ne.Services, err = impactedServices(db, string(p.GetUID()), podServicesTable)
 		if len(ne.Services) != 0 {
