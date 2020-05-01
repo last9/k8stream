@@ -10,6 +10,10 @@ Typical metadata in every event includes entity kind (pod, deployment etc), stat
 
 There are no tools for running analytics on top of it to figure out root causes of outages. This is where k8stream comes in as a pipeline to ingest events.
 
+## Example
+
+![Logo|512x397, 50%](images/k8stream_slack.png)
+
 # Overview
 
 K8stream is a tool you can use to ingest Kubernetes events, **find their correlation with services under Impact**, and send them to a specified sink in batches.
