@@ -4,19 +4,24 @@
 
 # Background
 
-Kubernetes events are an excellent source of information to monitor and debug the state of your cluster. Kubernetes API server emits events whenever there is a change in some resource it manages. These events are typically stored in etcd for some time and can be observed when you run kubectl get events or kubectl describe.
+Kubernetes events are an excellent source of information to monitor and debug the state of your Services. Kubernetes API server emits events whenever there is a change in some resource it manages. These events are typically stored in etcd for some time and can be observed when you run kubectl get events or kubectl describe.
 
 Typical metadata in every event includes entity kind (pod, deployment etc), state (warning, normal, error), reason and message.
 
-Etcd is a fast key value store to retrieve these events but not for running analytics on top of it to figure out root causes of outages. This is where k8stream comes in as a pipeline to ingest events.
+There are no tools for running analytics on top of it to figure out root causes of outages. This is where k8stream comes in as a pipeline to ingest events.
+
+## Example
+
+![Logo|512x397, 50%](images/k8stream_slack.png)
 
 # Overview
 
-K8stream is a tool you can use to ingest Kubernetes events and send them to a specified sink in batches.
+K8stream is a tool you can use to ingest Kubernetes events, **find their correlation with services under Impact**, and send them to a specified sink in batches.
 
 ## Principles
 
 - Goal is to enable storing events for post-hoc analysis
+- Pods are cattle, Services are Pets. Any change in cluster should find its association with the Service under Impact. 
 - The overhead to the cluster should be minimal
 - All queries should be cached
 - This processor does not handle deduplication and out of order events
@@ -103,5 +108,5 @@ Setting this as empty the code falls back to in-cluster authorization.
 # Future Work
 
 - [X] Support for adding POD details to an event
-- [ ] Support for writing to more output streams
-- [ ] Adding more metadata like service name for the event
+- [X] Support for writing to more output streams
+- [X] Adding more metadata like service name for the event
