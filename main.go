@@ -21,6 +21,16 @@ var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
 )
 
+func getFlusher(conf *L9K8streamConfig) (io.Flusher, error) {
+	switch conf.Sink {
+	case "slack":
+		s := &Slack{}
+		return s, s.LoadConfig(conf.Raw)
+	default:
+		return io.GetFlusher(&conf.Config)
+	}
+}
+
 func main() {
 	kingpin.Version(VERSION)
 	kingpin.Parse()
@@ -60,7 +70,7 @@ func main() {
 	}
 
 	// Get Flusher instance from IO
-	f, err := io.GetFlusher(&conf.Config)
+	f, err := getFlusher(conf)
 	if err != nil {
 		log.Fatal(err)
 	}

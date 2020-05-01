@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
-	"strings"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientscheme "k8s.io/client-go/kubernetes/scheme"
+	"log"
+	"strings"
+	"time"
 )
 
 type L9Event struct {
@@ -95,7 +95,14 @@ func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error 
 	}
 
 	ne.Pod = miniPodInfo(*p)
-	ne.Services, err = impactedServices(db, string(p.GetUID()), podServicesTable)
+	for ix := 0; ix < 5; ix++ {
+		ne.Services, err = impactedServices(db, string(p.GetUID()), podServicesTable)
+		if len(ne.Services) != 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+
 	return err
 }
 

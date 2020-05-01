@@ -87,6 +87,10 @@ func (kc *kubernetesClient) getPods(db Cachier, s *v1.Service) ([]v1.Pod, error)
 
 }
 
+func (kc *kubernetesClient) getService(namespace, name string) (*v1.Service, error) {
+	return kc.Clientset.CoreV1().Services(namespace).Get(name, metav1.GetOptions{})
+}
+
 func (kc *kubernetesClient) getNodeAddress(db Cachier, node string) ([]string, error) {
 	addr := []string{}
 
