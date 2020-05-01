@@ -9,7 +9,7 @@ const slackTmpl = `
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "*{{(joinStr $msg.Services ",")}}* impacted\nError {{$msg.Message}}\n"
+        "text": "*{{(joinStr $msg.Services ",")}}* impacted\nReason {{$msg.Message}}\n"
       },
       "accessory": {
         "type": "button",
