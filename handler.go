@@ -123,6 +123,10 @@ func (h *Handler) onService(s *v1.Service, eventType string) error {
 	return nil
 }
 
+// Check Event eligibility based on:
+// Namespace should be one amongst the reserved namespaces.
+// If namespaces are provided, this namespace should be in it.
+// If events whitelist is provided, this event should be in it.
 func (h *Handler) isEligible(obj *v1.Event) bool {
 	if contains(obj.Namespace, skipNamespaces) {
 		return false
