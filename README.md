@@ -54,11 +54,13 @@ This should output a ./k8stream binary in the TLD of the repository.
 
 Typical configuration looks like:
 
-```javascript
+**NOTE** Strip the comments before consuming this JSON
+
+```json
 {
   "config": {
     "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc", // UID of this deployment
-    "heartbeat_hook": "https://sample.last9.io", // Heatbeat hook
+    "heartbeat_hook": "https://heartbeat.last9.io", // Heatbeat hook
     "heartbeat_interval": 60,     // Send a heartbeat signal.
     "batch_interval": 60,         // Flush every n seconds
     "batch_size": 10000,          // Flush every n events
