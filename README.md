@@ -56,7 +56,7 @@ Typical configuration looks like:
 
 **NOTE** Strip the comments before consuming this JSON
 
-```json
+```javascript
 {
   "config": {
     "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc", // UID of this deployment
