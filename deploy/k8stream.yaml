@@ -42,18 +42,13 @@ data:
     {
       "config": {
         "uid": "719395d7-4e91-4817-a6ec-9a8ded29bebc",
-        "heartbeat_hook": "https://sample.last9.io",
+        "heartbeat_hook": "https://heartbeat.last9.io",
         "heartbeat_interval": 60,
-        "batch_interval": 60,
-        "batch_size": 10000,
-        "sink": "s3"
+        "batch_interval": 30,
+        "batch_size": 1000,
+        "sink": "slack"
       },
-      "prefix": "local/test-upload",
-      "aws_region": "ap-south-1",
-      "aws_bucket": "last9-trials",
-      "aws_profile": "last9data",
-      "aws_access_key": "1",
-      "aws_secret_access_key": "2",
+      "slack_url": "https://your_slack_webhook",
       "kubeconfig": ""
     }
 ---
