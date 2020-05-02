@@ -74,8 +74,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: k8stream
-          imagePullPolicy: Always
-          restart: OnFailure
+          imagePullPolicy: Never
           image: last9inc/k8stream:a14a00f
           command: ["/app/agent"]
           args: ["--config", "/data/config.json"]
