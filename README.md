@@ -62,15 +62,24 @@ Typical configuration looks like:
     "heartbeat_interval": 60,     // Send a heartbeat signal.
     "batch_interval": 60,         // Flush every n seconds
     "batch_size": 10000,          // Flush every n events
-    "sink": "s3"                  // Choices "s3", "file", "memory"
+    "sink": "slack"               // Choices "slack", "s3", "file", "memory"
   },
-  "namespaces": ["default"], // Skip this key if all namespaces should be captured. By default, kube-system, kubernetes, kubernetes-dashboard are always skipped
+  "namespaces": ["default"],      // Skip this key if all namespaces should be captured. By default, kube-system, kubernetes, kubernetes-dashboard are always skipped
+  
+  // If the sink is "Slack"
+  "slack_url": "https://hooks.slack.com/services/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",
+  
+  // If the sink is "s3"
   "prefix": "local/test-upload",  // Prefix of S3 Upload
   "aws_region": "ap-south-1",     // Region of S3 bucket
   "aws_bucket": "last9-trials",   // S3 Bucket to Upload to
   "aws_profile": "last9data",     // Profile, in case using creds file
   "aws_access_key": "1",          // Explicit AccessKey (Not advised)
   "aws_secret_access_key": "2",   // Explicit SecretKey (Not advised)
+  
+  // If the sink is "file"
+  "file_sink_dir": "./logs"       // If the sink is "file"
+  
   "kubeconfig": ""                // Location to kubeconfig file, leave empty when deploying to K8s
 }
 ```
