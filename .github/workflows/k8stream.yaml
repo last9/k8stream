@@ -24,10 +24,10 @@ jobs:
       run: make build_binary
 
     - name: Set env
-      run: echo ::set-env name=GITHUB_SHA_SHORT::$(echo $(./k8stream --version))
+      run: echo ::set-output name=version::$(./k8stream --version)
 
     - name: Test
-      run: echo $GITHUB_SHA_SHORT
+      run: echo ${{ steps.vars.outputs.version }} 
 
     # - name: Upload binaries to release
     #   uses: svenstaro/upload-release-action@v1-release
