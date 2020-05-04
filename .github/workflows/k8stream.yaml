@@ -26,8 +26,11 @@ jobs:
     - name: Get the release tag
       run: echo ::set-env name=VERSION::$(./k8stream --version)
 
-    - uses: AButler/upload-release-assets@v2.0
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v1-release
       with:
-        files: 'k8stream'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ env.VERSION }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: k8stream
+        asset_name: k8stream
+        tag: ${{ env.VERSION }}
+        overwrite: true
