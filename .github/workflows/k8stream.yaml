@@ -21,15 +21,15 @@ jobs:
       run: make test
 
     - name: Build
-      # if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       run: make build_binary_linux_x86_64
 
     - name: Get the release tag
-      # if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       run: echo "::set-env name=VERSION::$(./k8stream_linux_x86_64 --version > version 2>&1 && cat version)"
 
     - name: Create Release for x86_64_linux
-      # if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -41,7 +41,7 @@ jobs:
         prerelease: false
 
     - name: Upload release asset for x86_64_linux
-      # if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1 
       env:
