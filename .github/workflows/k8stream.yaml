@@ -26,27 +26,24 @@ jobs:
     - name: Get the release tag
       run: echo "::set-env name=VERSION::$(./k8stream --version > version 2>&1 && cat version)"
 
-    - name: Confirm the release tag
-      run: echo ${{ env.VERSION }}
-
-    - name: Create Release
+    - name: Create Release for x86_64_linux
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}
-        release_name: ${{ env.VERSION }}
+        release_name: k8stream_x86_64_linux
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
+    - name: Upload release asset for x86_64_linux
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./k8stream
         asset_name: k8stream
         asset_content_type: application/zip
