@@ -2,8 +2,8 @@ OS_NAME := $(shell uname -s | tr A-Z a-z)
 TAG := $(shell git rev-parse --short $(TRAVIS_COMMIT))
 REPO := last9inc/k8stream
 
-build_binary_linux_x86_64:
-	env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o k8stream_linux_x86_64 -installsuffix \
+build_binary:
+	env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o k8stream -installsuffix \
     		cgo github.com/last9/k8stream/
 
 build: build_binary
