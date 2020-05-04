@@ -62,16 +62,20 @@ spec:
     metadata:
       labels:
         app: k8stream
-        version: v1
+      annotations:
+        version: latest
     spec:
       serviceAccountName: k8stream
       restartPolicy: Always
       containers:
         - name: k8stream
           imagePullPolicy: Never
-          image: last9inc/k8stream:a14a00f
-          command: ["/app/agent"]
-          args: ["--config", "/data/config.json"]
+          image: last9inc/k8stream:latest
+          env:
+            - name: VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['version']
           volumeMounts:
             - mountPath: /data
               name: cfg
@@ -82,4 +86,3 @@ spec:
   selector:
     matchLabels:
       app: k8stream
-      version: v1
