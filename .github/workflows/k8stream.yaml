@@ -23,11 +23,12 @@ jobs:
     - name: Build
       run: make build_binary
 
-    - name: Set env
-      run: echo ::set-output name=version::$(./k8stream --version)
+    - name: Get the release tag
+      run: echo "::set-env name=VERSION::$(echo $(./k8stream --version > version 2>&1) && cat version)"
 
-    - name: Test
-      run: echo ${{ steps.vars.outputs.version }} 
+    - name: Confirm the release tag
+      run: echo ${{ env.VERSION }}
+
 
     # - name: Upload binaries to release
     #   uses: svenstaro/upload-release-action@v1-release
