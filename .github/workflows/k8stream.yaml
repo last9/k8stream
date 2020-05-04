@@ -29,12 +29,17 @@ jobs:
     - name: Confirm the release tag
       run: echo ${{ env.VERSION }}
 
-
-    - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v1-release
+    - uses: Shopify/upload-to-release
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: k8stream
-        asset_name: k8stream
-        tag: ${{ env.VERSION }}
-        overwrite: true
+        name: k8stream
+        path: .
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    # - name: Upload binaries to release
+    #   uses: svenstaro/upload-release-action@v1-release
+    #   with:
+    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+    #     file: k8stream
+    #     asset_name: k8stream
+    #     tag: ${{ env.VERSION }}
+    #     overwrite: true
