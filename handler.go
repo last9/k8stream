@@ -34,7 +34,7 @@ func (h *Handler) OnAdd(obj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", obj, err)
 	}
 }
 
@@ -49,7 +49,7 @@ func (h *Handler) OnUpdate(oldObj, newObj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", newObj, err)
 	}
 }
 
@@ -64,7 +64,7 @@ func (h *Handler) OnDelete(obj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", obj, err)
 	}
 }
 
@@ -146,6 +146,7 @@ func (h *Handler) onEvent(e *v1.Event) error {
 
 	// Event has been processed already.
 	if r.Exists() {
+		h.conf.Log("%v was processed already", e.GetUID())
 		return nil
 	}
 

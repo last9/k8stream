@@ -26,6 +26,7 @@ func Batch(ch <-chan interface{}, c *Config) (batch []interface{}, ident string)
 	for ; ix < c.BatchSize; ix++ {
 		select {
 		case <-time.After(time.Duration(c.BatchInterval) * time.Second):
+			c.Log("Flushing batch for Timeout %v", c.BatchInterval)
 			return
 		case x := <-ch:
 			batch[ix] = x

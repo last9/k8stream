@@ -17,14 +17,11 @@ K8stream is a tool you can use to:
 - Ingest Kubernetes events to a Sink for Offline analytics
 - **Find correlation with services under Impact**
 
-## Example
-
-![Logo|400x160, 25%](images/k8stream_slack.png)
 
 ## Principles
 
 - Goal is to enable storing events for post-hoc analysis
-- Pods are cattle, Services are Pets. Any change in cluster should find its association with the Service under Impact. 
+- Pods are cattle, Services are Pets. Any change in cluster should find its association with the Service under Impact.
 - The overhead to the cluster should be minimal
 - All queries should be cached
 - Events stored in the sink should be batched
@@ -64,13 +61,10 @@ Typical configuration looks like:
     "heartbeat_interval": 60,     // Send a heartbeat signal.
     "batch_interval": 60,         // Flush every n seconds
     "batch_size": 10000,          // Flush every n events
-    "sink": "slack"               // Choices "slack", "s3", "file", "memory"
+    "sink": "memory"               // Choices "s3", "file", "memory"
   },
   "namespaces": ["default"],      // Skip this key if all namespaces should be captured. By default, kube-system, kubernetes, kubernetes-dashboard are always skipped
-  
-  // If the sink is "Slack"
-  "slack_url": "https://hooks.slack.com/services/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",
-  
+
   // If the sink is "s3"
   "prefix": "local/test-upload",  // Prefix of S3 Upload
   "aws_region": "ap-south-1",     // Region of S3 bucket
@@ -78,10 +72,10 @@ Typical configuration looks like:
   "aws_profile": "last9data",     // Profile, in case using creds file
   "aws_access_key": "1",          // Explicit AccessKey (Not advised)
   "aws_secret_access_key": "2",   // Explicit SecretKey (Not advised)
-  
+
   // If the sink is "file"
   "file_sink_dir": "./logs"       // If the sink is "file"
-  
+
   "kubeconfig": ""                // Location to kubeconfig file, leave empty when deploying to K8s
 }
 ```

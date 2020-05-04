@@ -7,7 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-func cacheServicePods(c *kubernetesClient, db Cachier, s *v1.Service) ([]v1.Pod, error) {
+func getServicePods(c *kubernetesClient, db Cachier, s *v1.Service) ([]v1.Pod, error) {
 	suid := string(s.GetUID())
 
 	// Find all PODS for this service so that a rerverse lookup is possible.
@@ -36,19 +36,20 @@ func cacheServicePods(c *kubernetesClient, db Cachier, s *v1.Service) ([]v1.Pod,
 	return pods, nil
 }
 
-func cacheServiceApps(c *kubernetesClient, db Cachier, s *v1.Service) error {
+/*
+func getServiceApps(c *kubernetesClient, db Cachier, s *v1.Service) ([]appsv1.Deployment, error) {
 	suid := string(s.GetUID())
 
 	// Find all Replication Controllers for this service
 	// so that a rerverse lookup is possible.
 	apps, err := c.getApps(db, s)
 	if err != nil {
-		return err
+		return apps, err
 	}
 
 	// Save service -> ReplicationControllers
 	if err := db.Set(serviceAppsTable, suid, apps); err != nil {
-		return err
+		return apps, err
 	}
 
 	// Also save rc -> service denormalized for reverse Index lookup
@@ -59,12 +60,13 @@ func cacheServiceApps(c *kubernetesClient, db Cachier, s *v1.Service) error {
 		if err := db.Set(
 			makeKey(appServicesTable, string(r.GetUID())), suid, true,
 		); err != nil {
-			return err
+			return apps, err
 		}
 	}
 
-	return nil
+	return apps, nil
 }
+*/
 
 // eventID
 func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.Service, eventType string) (*L9Event, error) {
@@ -78,12 +80,8 @@ func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.S
 		return nil, err
 	}
 
-	pods, err := cacheServicePods(c, db, s)
+	pods, err := getServicePods(c, db, s)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := cacheServiceApps(c, db, s); err != nil {
 		return nil, err
 	}
 
@@ -98,23 +96,17 @@ func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.S
 	}
 
 	return &L9Event{
-		ID:                 eventID,
-		Timestamp:          time.Now().Unix(),
-		Component:          s.GetName(),
-		Host:               "",
-		Message:            eventType,
-		Namespace:          s.GetNamespace(),
-		Reason:             eventType,
-		ReferenceUID:       "",
-		ReferenceNamespace: "",
-		ReferenceName:      "",
-		ReferenceKind:      "",
-		ReferenceVersion:   s.GetResourceVersion(),
-		ObjectUid:          string(s.GetUID()),
-		Labels:             s.GetLabels(),
-		Annotations:        s.GetAnnotations(),
-		Address:            nil,
-		Pod:                podMap,
-		Services:           []string{s.GetName()},
+		ID:               eventID,
+		Timestamp:        time.Now().Unix(),
+		Component:        s.GetName(),
+		Message:          eventType,
+		Namespace:        s.GetNamespace(),
+		Reason:           eventType,
+		ReferenceVersion: s.GetResourceVersion(),
+		ObjectUid:        string(s.GetUID()),
+		Labels:           s.GetLabels(),
+		Annotations:      s.GetAnnotations(),
+		Pod:              podMap,
+		Services:         []string{s.GetName()},
 	}, nil
 }

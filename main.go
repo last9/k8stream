@@ -22,13 +22,7 @@ var (
 )
 
 func getFlusher(conf *L9K8streamConfig) (io.Flusher, error) {
-	switch conf.Sink {
-	case "slack":
-		s := &Slack{}
-		return s, s.LoadConfig(conf.Raw)
-	default:
-		return io.GetFlusher(&conf.Config)
-	}
+	return io.GetFlusher(&conf.Config)
 }
 
 func main() {

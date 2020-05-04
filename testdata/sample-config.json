@@ -1,11 +1,12 @@
 {
     "kubeconfig": "./kubeconfig",
-    "resync_interval": 120,
+    "resync_interval": 0,
     "config": {
+        "debug": false,
         "uid": "560b2497-d61d-47f2-8e43-5a6c2efec640",
         "batch_interval": 10,
         "batch_size": 1000,
-        "sink": "memory"
+        "sink": "file"
     },
     "file_sink_dir": "./logs"
 }

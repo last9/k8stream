@@ -1,13 +1,12 @@
 package main
 
 import (
+	"log"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientscheme "k8s.io/client-go/kubernetes/scheme"
-	"log"
-	"strings"
-	"time"
 )
 
 type L9Event struct {
@@ -44,48 +43,36 @@ func makeL9Event(
 		return nil, err
 	}
 
-	return makeL9EventDetails(db, e, u, address), nil
+	return makeL9EventDetails(db, e, u, address)
 }
 
-func makeL9EventDetails(db Cachier, e *v1.Event, u *unstructured.Unstructured, address []string) *L9Event {
+func makeL9EventDetails(db Cachier, e *v1.Event, u *unstructured.Unstructured, address []string) (*L9Event, error) {
 	ne := &L9Event{
-		ID:               string(e.UID),
-		Timestamp:        e.CreationTimestamp.Time.Unix(),
-		Component:        e.Source.Component,
-		Host:             e.Source.Host,
-		Message:          e.Message,
-		Namespace:        e.Namespace,
-		Reason:           e.Reason,
-		ReferenceUID:     string(e.InvolvedObject.UID),
-		ReferenceName:    e.InvolvedObject.Name,
-		ReferenceVersion: e.InvolvedObject.APIVersion,
-		Address:          address,
+		ID:                 string(e.UID),
+		Timestamp:          e.CreationTimestamp.Time.Unix(),
+		Component:          e.Source.Component,
+		Host:               e.Source.Host,
+		Message:            e.Message,
+		Namespace:          e.Namespace,
+		Reason:             e.Reason,
+		ReferenceUID:       string(e.InvolvedObject.UID),
+		ReferenceName:      e.InvolvedObject.Name,
+		ReferenceVersion:   e.InvolvedObject.APIVersion,
+		ReferenceNamespace: e.InvolvedObject.Namespace,
+		ReferenceKind:      e.InvolvedObject.Kind,
+		ObjectUid:          string(e.InvolvedObject.UID),
+		Address:            address,
 	}
 
-	if u == nil {
-		return ne
+	if u != nil {
+		ne.Labels = u.GetLabels()
+		ne.Annotations = u.GetAnnotations()
+		if err := addPodDetails(db, ne, u); err != nil {
+			log.Println(err)
+		}
 	}
 
-	var err error
-	switch strings.ToLower(u.GetKind()) {
-	case "deployment":
-		ne.Services, err = impactedServices(db, string(u.GetUID()), appServicesTable)
-	case "pod":
-		err = addPodDetails(db, ne, u)
-	default:
-	}
-
-	if err != nil {
-		log.Println("Could not find impacted service", err)
-	}
-
-	// ne.InvolvedObject = u
-	ne.ReferenceNamespace = u.GetNamespace()
-	ne.ReferenceKind = u.GetKind()
-	ne.ObjectUid = string(u.GetUID())
-	ne.Labels = u.GetLabels()
-	ne.Annotations = u.GetAnnotations()
-	return ne
+	return ne, nil
 }
 
 func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error {
@@ -95,19 +82,6 @@ func addPodDetails(db Cachier, ne *L9Event, u *unstructured.Unstructured) error 
 	}
 
 	ne.Pod = miniPodInfo(*p)
-        // There are times when an Event may come ahead of the
-        // corresponding service event. Usually happens when
-        // k8stream has just started. A simple solution is to retry
-        // with Linear backoff. If nothing shows up for 10 seconds, 
-        // probably nothing ever will.
-	for ix := 0; ix < 5; ix++ {
-		ne.Services, err = impactedServices(db, string(p.GetUID()), podServicesTable)
-		if len(ne.Services) != 0 {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-
 	return err
 }
 
@@ -135,6 +109,7 @@ func unstructuredToPod(obj *unstructured.Unstructured) (*v1.Pod, error) {
 	return pod, err
 }
 
+/*
 func impactedServices(db Cachier, uid string, table string) ([]string, error) {
 	// DB currently does not have a list method.
 	// We have treated each pod as a seaprate Index, so a prefix should help
@@ -158,3 +133,4 @@ func impactedServices(db Cachier, uid string, table string) ([]string, error) {
 	}
 	return services, err
 }
+*/

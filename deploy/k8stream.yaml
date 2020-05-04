@@ -46,9 +46,8 @@ data:
         "heartbeat_interval": 60,
         "batch_interval": 30,
         "batch_size": 1000,
-        "sink": "slack"
+        "sink": "memory"
       },
-      "slack_url": "https://your_slack_webhook",
       "kubeconfig": ""
     }
 ---

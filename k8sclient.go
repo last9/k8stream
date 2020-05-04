@@ -17,7 +17,7 @@ import (
 
 const (
 	objectCacheTable  = "object"
-	objectCacheExpiry = 600
+	objectCacheExpiry = 3600
 )
 
 type kubernetesClient struct {
