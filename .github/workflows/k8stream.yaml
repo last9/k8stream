@@ -29,6 +29,12 @@ jobs:
     - name: Cinfirm the release tag
       run: echo ${{ env.VERSION }}
 
+    - name: Set env
+      run: echo ::set-env name=GITHUB_SHA_SHORT::$(echo $GITHUB_SHA | cut -c 1-6)
+
+    - name: Test
+      run: echo $GITHUB_SHA_SHORT
+
     # - name: Upload binaries to release
     #   uses: svenstaro/upload-release-action@v1-release
     #   with:
