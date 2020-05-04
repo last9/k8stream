@@ -20,17 +20,9 @@ jobs:
     - name: Test
       run: make test
 
+    - name: Build
+      run: make build_binary
 
-  release:
-    needs: test
-    name: Release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
+    - name: Get the release tag
+      run: echo ::set-env name=VERSION::$(./k8stream --version)
 
-      - uses: actions/setup-go@v1
-        with:
-          go-version: "1.13"
-
-      - name: Build
-        run: make build_binary
