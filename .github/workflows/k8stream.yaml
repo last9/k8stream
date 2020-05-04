@@ -29,7 +29,8 @@ jobs:
     - name: Confirm the release tag
       run: echo ${{ env.VERSION }}
 
-    - uses: Shopify/upload-to-release
+    - name: Publish
+      uses: Shopify/upload-to-release
       with:
         name: k8stream
         path: .
