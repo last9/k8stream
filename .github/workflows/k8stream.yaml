@@ -27,7 +27,7 @@ jobs:
       run: echo ::set-env name=GITHUB_SHA_SHORT::$(echo $(./k8stream --version))
 
     - name: Test
-      run: echo $VERSION
+      run: echo $GITHUB_SHA_SHORT
 
     # - name: Upload binaries to release
     #   uses: svenstaro/upload-release-action@v1-release
