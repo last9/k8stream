@@ -71,8 +71,6 @@ spec:
         - name: k8stream
           imagePullPolicy: Never
           image: last9inc/k8stream:latest
-          command: ["/bin/sh"]
-          args: ["-c", "/app/run.sh && /app/agent --config /data/config.json"]
           env:
             - name: VERSION
               valueFrom:
