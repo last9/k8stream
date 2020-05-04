@@ -2,7 +2,7 @@ name: K8Stream
 on:
   push:
     paths:
-    - '*'
+    - '.github/workflows/k8stream.yaml'
 
 jobs:
   test:
