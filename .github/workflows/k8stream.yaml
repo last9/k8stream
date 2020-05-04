@@ -23,10 +23,10 @@ jobs:
     - name: Build
       run: make build_binary
 
-    - name: Get the release tag
-      run: echo "::set-env name=VERSION::$(echo $(./k8stream --version))"
+    - name: Set env
+      run: echo ::set-env name=GITHUB_SHA_SHORT::$(echo $(./k8stream --version))
 
-    - name: Cinfirm the release tag
+    - name: Test
       run: echo $VERSION
 
     # - name: Upload binaries to release
