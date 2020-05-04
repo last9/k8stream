@@ -29,12 +29,26 @@ jobs:
     - name: Confirm the release tag
       run: echo ${{ env.VERSION }}
 
-    - name: Publish
-      uses: AButler/upload-release-assets@v2.0
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: 'k8stream'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        release-tag: ${{ env.VERSION }}
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./k8stream
+        asset_name: k8stream
 
     # - name: Upload binaries to release
     #   uses: svenstaro/upload-release-action@v1-release
