@@ -24,7 +24,7 @@ jobs:
       run: make build_binary
 
     - name: Get the release tag
-      run: echo ::set-env name=VERSION::$(./k8stream --version)
+      run: echo "::set-env name=VERSION::$(echo $(./k8stream --version))"
 
     - name: Cinfirm the release tag
       run: echo ${{ env.VERSION }}
