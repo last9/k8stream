@@ -3,4 +3,6 @@ RUN apk add ca-certificates
 
 FROM builder
 WORKDIR /app
-COPY k8stream agent
+
+COPY deploy/run.sh run.sh
+RUN chmod a+x run.sh
