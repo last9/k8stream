@@ -25,6 +25,7 @@ jobs:
       run: make build_binary
 
     - name: Get the release tag
+      if: github.ref == 'refs/heads/master'
       run: echo "::set-env name=VERSION::$(./k8stream --version > version 2>&1 && cat version)"
 
     - name: Create Release for x86_64_linux
