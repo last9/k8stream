@@ -20,8 +20,8 @@ jobs:
     # - name: Test
     #   run: make test
 
-    # - name: Build
-    #   run: make build_binary
+    - name: Build
+      run: make build_binary
 
     - name: Get the release tag
       run: echo ::set-env name=VERSION::$(./k8stream --version)
