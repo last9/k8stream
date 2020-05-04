@@ -20,17 +20,20 @@ jobs:
     # - name: Test
     #   run: make test
 
-    - name: Build
-      run: make build_binary
+    # - name: Build
+    #   run: make build_binary
 
     - name: Get the release tag
       run: echo ::set-env name=VERSION::$(./k8stream --version)
 
-    - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v1-release
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: k8stream
-        asset_name: k8stream
-        tag: ${{ env.VERSION }}
-        overwrite: true
+    - name: Cinfirm the release tag
+      run: echo ${{ env.VERSION }}
+
+    # - name: Upload binaries to release
+    #   uses: svenstaro/upload-release-action@v1-release
+    #   with:
+    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+    #     file: k8stream
+    #     asset_name: k8stream
+    #     tag: ${{ env.VERSION }}
+    #     overwrite: true
