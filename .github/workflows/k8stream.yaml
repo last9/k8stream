@@ -1,0 +1,36 @@
+name: K8Stream
+on:
+  push:
+    paths:
+    - '.github/workflows/k8stream.yaml'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/setup-go@v1
+      with:
+        go-version: "1.13"
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Test
+      run: make test
+
+
+  release:
+    needs: test
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/setup-go@v1
+        with:
+          go-version: "1.13"
+
+      - name: Build
+        run: make build_binary
