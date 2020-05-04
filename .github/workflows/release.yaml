@@ -1,0 +1,50 @@
+name: release
+on:
+  push:
+    paths:
+      - "**"
+
+jobs:
+  release:
+    name: k8stream
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/setup-go@v1
+      with:
+        go-version: "1.13"
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Build k8stream for linux x86_64
+      if: github.ref == 'refs/heads/master'
+      run: env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o k8stream_linux_x86_64 -installsuffix cgo github.com/last9/k8stream/
+
+    - name: Get the release tag
+      if: github.ref == 'refs/heads/master'
+      run: echo "::set-env name=VERSION::$(./k8stream_linux_x86_64 --version > version 2>&1 && cat version)"
+
+    - name: Create release for linux_x86_64
+      if: github.ref == 'refs/heads/master'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.VERSION }}
+        release_name: k8stream_linux_x86_64
+        draft: false
+        prerelease: false
+
+    - name: Upload release asset for linux_x86_64
+      if: github.ref == 'refs/heads/master'
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./k8stream_linux_x86_64
+        asset_name: k8stream_linux_x86_64
+        asset_content_type: application/zip
