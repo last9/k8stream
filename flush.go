@@ -34,6 +34,7 @@ func doBatch(
 	db Cachier, cfg *L9K8streamConfig,
 ) error {
 	batch, batchIdent := io.Batch(msgChan, &cfg.Config)
+	cfg.Log("Flushing %v: %v", batchIdent, len(batch))
 	if len(batch) == 0 {
 		return nil
 	}

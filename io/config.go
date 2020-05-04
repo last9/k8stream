@@ -3,6 +3,7 @@ package io
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"os"
 	"sync"
 
@@ -19,6 +20,7 @@ func loadEnvConfig(key string, cfg interface{}) error {
 }
 
 type Config struct {
+	Debug             bool            `json:"debug"`
 	UID               string          `json:"uid" validate:"required"`
 	BatchSize         int             `json:"batch_size"`
 	BatchInterval     int             `json:"batch_interval"`
@@ -27,6 +29,14 @@ type Config struct {
 	HeartbeatHook     string          `json:"heartbeat_hook"`
 	HeartbeatInterval int             `json:"heartbeat_interval"`
 	HeartbeatTimeout  int             `json:"heartbeat_timeout_ms"`
+}
+
+func (c Config) Log(msg string, args ...interface{}) {
+	if !c.Debug {
+		return
+	}
+
+	log.Printf(msg, args...)
 }
 
 var validate *validator.Validate

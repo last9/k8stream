@@ -34,7 +34,7 @@ func (h *Handler) OnAdd(obj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", obj, err)
 	}
 }
 
@@ -49,7 +49,7 @@ func (h *Handler) OnUpdate(oldObj, newObj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", newObj, err)
 	}
 }
 
@@ -64,7 +64,7 @@ func (h *Handler) OnDelete(obj interface{}) {
 	}
 
 	if err != nil {
-		log.Println(err)
+		h.conf.Log("Obj: %+v\nError: %+v", obj, err)
 	}
 }
 
@@ -146,8 +146,14 @@ func (h *Handler) onEvent(e *v1.Event) error {
 
 	// Event has been processed already.
 	if r.Exists() {
+		h.conf.Log("%v was processed already", e.GetUID())
 		return nil
 	}
+
+	h.conf.Log(
+		"\nId: %-20s | When: %+v | Reason: %-20s | Kind:%-15s | Controller:%-20s| Related:%15s -> %-10s \nMessage: %-100s\n\n",
+		string(e.UID), e.CreationTimestamp.Time, e.Reason, e.InvolvedObject.Kind, e.ReportingController, e.InvolvedObject.Kind, e.InvolvedObject.Name, e.Message,
+	)
 
 	event, err := makeL9Event(h.db, h.client, e)
 	if err != nil {
