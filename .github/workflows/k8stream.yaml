@@ -22,7 +22,7 @@ jobs:
 
     - name: Build
       # if: github.ref == 'refs/heads/master'
-      run: make build_binary
+      run: make build_binary_linux_x86_64
 
     - name: Get the release tag
       # if: github.ref == 'refs/heads/master'
