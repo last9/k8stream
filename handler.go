@@ -150,11 +150,6 @@ func (h *Handler) onEvent(e *v1.Event) error {
 		return nil
 	}
 
-	h.conf.Log(
-		"\nId: %-20s | When: %+v | Reason: %-20s | Kind:%-15s | Controller:%-20s| Related:%15s -> %-10s \nMessage: %-100s\n\n",
-		string(e.UID), e.CreationTimestamp.Time, e.Reason, e.InvolvedObject.Kind, e.ReportingController, e.InvolvedObject.Kind, e.InvolvedObject.Name, e.Message,
-	)
-
 	event, err := makeL9Event(h.db, h.client, e)
 	if err != nil {
 		return err
