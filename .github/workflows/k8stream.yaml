@@ -26,9 +26,8 @@ jobs:
     - name: Get the release tag
       run: echo ::set-env name=VERSION::$(./k8stream --version)
 
-    - name: Upload the artifacts
-      uses: skx/github-action-publish-binaries@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: AButler/upload-release-assets@v2.0
       with:
-        args: 'k8stream-{{ env.VERSION }}'
+        files: 'k8stream'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ env.VERSION }}
