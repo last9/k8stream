@@ -69,7 +69,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: k8stream
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           image: last9inc/k8stream:latest
           env:
             - name: VERSION
