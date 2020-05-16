@@ -107,6 +107,6 @@ func makeL9ServiceEvent(db Cachier, c *kubernetesClient, eventID string, s *v1.S
 		Labels:           s.GetLabels(),
 		Annotations:      s.GetAnnotations(),
 		Pod:              podMap,
-		Services:         []string{s.GetName()},
+		Version:          VERSION,
 	}, nil
 }
