@@ -56,6 +56,10 @@ func TestMakeL9Event(t *testing.T) {
 
 		assert.Equal(t, ev.ID, "19b4506f-95f4-4dd0-8d2d-bf7647997877")
 		assert.Equal(t, ev.Address[0], "127.0.0.1")
+
+		t.Run("Version value in event matches binary version", func(t *testing.T) {
+			assert.Equal(t, ev.Version, VERSION)
+		})
 	})
 
 	t.Run("Receive event over Handler", func(t *testing.T) {
