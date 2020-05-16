@@ -70,11 +70,9 @@ Typical configuration looks like:
   "aws_region": "ap-south-1",     // Region of S3 bucket
   "aws_bucket": "last9-trials",   // S3 Bucket to Upload to
   "aws_profile": "last9data",     // Profile, in case using creds file
-  "aws_access_key": "1",          // Explicit AccessKey (Not advised)
-  "aws_secret_access_key": "2",   // Explicit SecretKey (Not advised)
 
   // If the sink is "file"
-  "file_sink_dir": "./logs"       // If the sink is "file"
+  "file_sink_dir": "./logs",       // If the sink is "file"
 
   "kubeconfig": ""                // Location to kubeconfig file, leave empty when deploying to K8s
 }
