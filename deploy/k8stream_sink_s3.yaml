@@ -14,8 +14,6 @@ stringData:
     [k8streamer]
     aws_access_key_id=1
     aws_secret_access_key=2
-    region=<region of the s3 bucket, ex- ap-south-1>
-    output=json
 ---
 apiVersion: v1
 kind: ConfigMap
