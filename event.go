@@ -27,7 +27,7 @@ type L9Event struct {
 	Annotations        map[string]string      `json:"annotations"`
 	Address            []string               `json:"address"`
 	Pod                map[string]interface{} `json:"pod"`
-	Services           []string               `json:"services"`
+	Version            string                 `json:"version"`
 }
 
 func makeL9Event(
@@ -62,6 +62,7 @@ func makeL9EventDetails(db Cachier, e *v1.Event, u *unstructured.Unstructured, a
 		ReferenceKind:      e.InvolvedObject.Kind,
 		ObjectUid:          string(e.InvolvedObject.UID),
 		Address:            address,
+		Version:            VERSION,
 	}
 
 	if u != nil {
@@ -108,29 +109,3 @@ func unstructuredToPod(obj *unstructured.Unstructured) (*v1.Pod, error) {
 	pod.APIVersion = ""
 	return pod, err
 }
-
-/*
-func impactedServices(db Cachier, uid string, table string) ([]string, error) {
-	// DB currently does not have a list method.
-	// We have treated each pod as a seaprate Index, so a prefix should help
-	// hunting all keys that were set with the prefix of pod-service-podId
-	// Need to expose a method in DB.
-	serviceIds, err := db.List(makeKey(table, uid))
-	if err != nil {
-		return nil, err
-	}
-	services := []string{}
-	for _, sId := range serviceIds {
-		res, err := db.Get(serviceTable, sId)
-		if err == nil && res.Exists() {
-			var v *v1.Service
-			if err := res.Unmarshal(&v); err != nil {
-				log.Println(err)
-				continue
-			}
-			services = append(services, v.GetName())
-		}
-	}
-	return services, err
-}
-*/
