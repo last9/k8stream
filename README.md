@@ -72,7 +72,7 @@ Typical configuration looks like:
   "aws_profile": "last9data",     // Profile, in case using creds file
 
   // If the sink is "file"
-  "file_sink_dir": "./logs"       // If the sink is "file"
+  "file_sink_dir": "./logs",       // If the sink is "file"
 
   "kubeconfig": ""                // Location to kubeconfig file, leave empty when deploying to K8s
 }
