@@ -6,7 +6,7 @@ Once you have a sample application going with Minikube. Proceed to the next stes
 ## Build
 
 ```bash
-make build
+go build .
 ```
 This should output a ./k8stream binary in the TLD of the repository.
 
