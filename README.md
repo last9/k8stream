@@ -71,4 +71,4 @@ Setting this as empty the code falls back to in-cluster authorization.
 
 # Development and Contribution
 
-Please follow the [Deployment](Deployment.md) guide to setup and run k8stream in a local environment. 
+Please follow the [Developer](Development.md) guide to setup and run k8stream in a local environment. 
