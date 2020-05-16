@@ -92,7 +92,7 @@ Setting this as empty the code falls back to in-cluster authorization.
 ## Handling of events
 
 - Doesn't perform an event-by-event upload but instead uploads in batches
-- K8s stream handles some basic de-duplication of events by checking the event cache if this entry has been processed.  However, if the cache gets flushed or the k8stream binary gets restarted, it will start processing duplicate events.
+- K8stream handles some basic de-duplication of events by checking the event cache if this entry has been processed.  However, if the cache gets flushed or the k8stream binary gets restarted, it will start processing duplicate events.
 - The events are enriched with more metadata such as labels and annotations corresponding to the entity, node IP address etc.
 - Uses a highly concurrent Cache to avoid re-lookup.
 
