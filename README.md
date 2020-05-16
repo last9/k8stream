@@ -80,7 +80,7 @@ Typical configuration looks like:
 
 ### Deploy
 
-There is a deployment file available at [K8s YAML file](deploy/k8stream.yaml)
+There are sample deployment files available at [K8s YAMLs](deploy/)
 
 In case on in-cluster deployment omit the "kubeconfig" parameter in JSON.
 Setting this as empty the code falls back to in-cluster authorization.
