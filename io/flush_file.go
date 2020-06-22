@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+
+	"golang.org/x/sys/unix"
 )
 
 type FileSink struct {
@@ -12,8 +15,24 @@ type FileSink struct {
 }
 
 func (f *FileSink) LoadConfig(b json.RawMessage) error {
-	// TODO: Check if Dir actually exists and is writable.
-	return LoadConfig(b, f)
+	if err := LoadConfig(b, f); err != nil {
+		return err
+	}
+
+	fileInfo, err := os.Stat(f.Dir)
+	if os.IsNotExist(err) {
+		return err
+	}
+
+	if !fileInfo.IsDir() {
+		return fmt.Errorf("%s is not a directory", f.Dir)
+	}
+
+	if err = unix.Access(f.Dir, unix.W_OK); err != nil {
+		return fmt.Errorf("unable to access %s (%s)", f.Dir, err.Error())
+	}
+
+	return nil
 }
 
 func (f *FileSink) Flush(uuid, filename string, d []byte) error {
