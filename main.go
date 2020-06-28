@@ -15,7 +15,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const VERSION = "0.0.4"
+const VERSION = "0.0.5"
 
 var (
 	configFile = kingpin.Flag("config", "Config File to Parse").Required().File()
